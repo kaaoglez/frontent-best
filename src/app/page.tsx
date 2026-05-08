@@ -29,7 +29,7 @@ function AppContent() {
     music: 'Música',
     radio: 'Radio',
     movies: 'Películas',
-    tvshows: 'TV Shows',
+    tvshows: 'Series',
     printers: 'Impresora',
     library: 'Biblioteca',
     images: 'Imágenes',

@@ -21,7 +21,7 @@ const NAV_ITEMS: { id: Section; label: string; icon: React.ReactNode }[] = [
   { id: 'music', label: 'Música', icon: <Music className="h-5 w-5" /> },
   { id: 'radio', label: 'Radio', icon: <Radio className="h-5 w-5" /> },
   { id: 'movies', label: 'Películas', icon: <Film className="h-5 w-5" /> },
-  { id: 'tvshows', label: 'TV Shows', icon: <Monitor className="h-5 w-5" /> },
+  { id: 'tvshows', label: 'Series', icon: <Monitor className="h-5 w-5" /> },
   { id: 'images', label: 'Imágenes', icon: <ImageIcon className="h-5 w-5" /> },
   { id: 'printers', label: 'Impresora', icon: <Printer className="h-5 w-5" /> },
 ];

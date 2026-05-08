@@ -25,6 +25,7 @@ export default function DashboardSection() {
     current: { temperature: number; feelsLike: number; humidity: number; windSpeed: number; description: string; icon: string };
     forecast: { day: string; high: number; low: number; icon: string; description: string }[];
   } | null>(null);
+  const [weatherStatus, setWeatherStatus] = useState<'loading' | 'requesting' | 'ready' | 'denied' | 'unavailable'>('loading');
   const [mediaStats, setMediaStats] = useState<{
     library: { totalBooks: number; booksRead: number; totalPages: number; uniqueAuthors: number };
     music: { totalFiles: number; totalFolders: number; totalSize: number };
@@ -52,13 +53,32 @@ export default function DashboardSection() {
       setLoading(false);
     }
 
-    // Load weather in background (Open-Meteo, no API key needed)
-    try {
-      const geoRes = await fetch('https://geocoding-api.open-meteo.com/v1/search?name=salt%20spring%20island&count=1&language=es');
-      const geoData = await geoRes.json();
-      if (geoData.results?.length > 0) {
-        const { latitude, longitude, name, country } = geoData.results[0];
-        const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=3`);
+    // Load weather based on user's geolocation (Open-Meteo, no API key needed)
+    const loadWeatherForCoords = async (lat: number, lon: number) => {
+      try {
+        setWeatherStatus('loading');
+        let city = 'Tu ubicación';
+        let country = '';
+        let countryCode = '';
+
+        // Always use Nominatim for reverse geocoding (gives city + country_code)
+        try {
+          const revRes = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=es`, {
+            headers: { 'User-Agent': 'MiServidor/1.0' },
+            signal: AbortSignal.timeout(8000),
+          });
+          const revData = await revRes.json();
+          city = revData.address?.city || revData.address?.town || revData.address?.village || revData.address?.county || 'Tu ubicación';
+          country = revData.address?.country || '';
+          countryCode = (revData.address?.country_code || '').toUpperCase();
+        } catch { /* use defaults */ }
+
+        // Always save country code for news widget
+        if (countryCode) {
+          localStorage.setItem('weather_country_code', countryCode);
+        }
+
+        const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=3`);
         const wData = await wRes.json();
         const codeMap: Record<number, { desc: string; icon: string }> = {
           0: { desc: 'Despejado', icon: '☀️' }, 1: { desc: 'Parcialmente nublado', icon: '⛅' },
@@ -73,7 +93,7 @@ export default function DashboardSection() {
         const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
         const cur = codeMap[wData.current.weather_code] || { desc: 'Nublado', icon: '☁️' };
         setWeather({
-          city: name,
+          city,
           country,
           current: { temperature: wData.current.temperature_2m, feelsLike: wData.current.apparent_temperature, humidity: wData.current.relative_humidity_2m, windSpeed: wData.current.wind_speed_10m, description: cur.desc, icon: cur.icon },
           forecast: wData.daily.time.map((d: string, i: number) => {
@@ -81,8 +101,39 @@ export default function DashboardSection() {
             return { day: days[new Date(d + 'T00:00:00').getDay()], high: Math.round(wData.daily.temperature_2m_max[i]), low: Math.round(wData.daily.temperature_2m_min[i]), icon: f.icon, description: f.desc };
           }),
         });
+        setWeatherStatus('ready');
+        // Save coords for next time
+        localStorage.setItem('weather_coords', JSON.stringify({ lat, lon }));
+      } catch {
+        setWeatherStatus('unavailable');
       }
-    } catch { /* weather fails silently */ }
+    };
+
+    // Check for saved coords first, otherwise request geolocation
+    const savedCoords = localStorage.getItem('weather_coords');
+    if (savedCoords) {
+      try {
+        const { lat, lon } = JSON.parse(savedCoords);
+        loadWeatherForCoords(lat, lon);
+      } catch {
+        requestGeolocation();
+      }
+    } else {
+      requestGeolocation();
+    }
+
+    function requestGeolocation() {
+      if (!navigator.geolocation) {
+        setWeatherStatus('unavailable');
+        return;
+      }
+      setWeatherStatus('requesting');
+      navigator.geolocation.getCurrentPosition(
+        (pos) => loadWeatherForCoords(pos.coords.latitude, pos.coords.longitude),
+        () => setWeatherStatus('denied'),
+        { timeout: 10000, enableHighAccuracy: false }
+      );
+    }
   }, [setServerStats]);
 
   useEffect(() => {
@@ -151,7 +202,7 @@ export default function DashboardSection() {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Ciudad</p>
-                    <p className="text-sm font-medium">{weather.city}</p>
+                    <p className="text-sm font-medium">{weather.city}{weather.country ? ` · ${weather.country}` : ''}</p>
                   </div>
                 </div>
                 {/* 3-day forecast */}
@@ -165,6 +216,53 @@ export default function DashboardSection() {
                     </div>
                   ))}
                 </div>
+              </div>
+            ) : weatherStatus === 'requesting' ? (
+              <div className="flex items-center justify-center py-4 gap-2">
+                <div className="h-2 w-2 rounded-full bg-sky-500 animate-pulse" />
+                <p className="text-sm text-muted-foreground">Solicitando acceso a ubicación...</p>
+              </div>
+            ) : weatherStatus === 'denied' ? (
+              <div className="flex flex-col items-center justify-center py-4 gap-2">
+                <p className="text-sm text-muted-foreground">Permiso de ubicación denegado</p>
+                <button
+                  onClick={() => {
+                    setWeatherStatus('loading');
+                    navigator.geolocation.getCurrentPosition(
+                      (pos) => {
+                        const wRes = fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=3`);
+                        wRes.then(r => r.json()).then(wData => {
+                          const codeMap: Record<number, { desc: string; icon: string }> = {
+                            0: { desc: 'Despejado', icon: '☀️' }, 1: { desc: 'Parcialmente nublado', icon: '⛅' },
+                            2: { desc: 'Parcialmente nublado', icon: '⛅' }, 3: { desc: 'Nublado', icon: '☁️' },
+                            45: { desc: 'Niebla', icon: '🌫️' }, 48: { desc: 'Niebla', icon: '🌫️' },
+                            51: { desc: 'Llovizna', icon: '🌦️' }, 53: { desc: 'Llovizna', icon: '🌦️' }, 55: { desc: 'Llovizna', icon: '🌦️' },
+                            61: { desc: 'Lluvia', icon: '🌧️' }, 63: { desc: 'Lluvia', icon: '🌧️' }, 65: { desc: 'Lluvia', icon: '🌧️' },
+                            71: { desc: 'Nieve', icon: '🌨️' }, 73: { desc: 'Nieve', icon: '🌨️' }, 75: { desc: 'Nieve', icon: '🌨️' },
+                            80: { desc: 'Chubascos', icon: '🌧️' }, 81: { desc: 'Chubascos', icon: '🌧️' }, 82: { desc: 'Chubascos', icon: '🌧️' },
+                            95: { desc: 'Tormenta', icon: '⛈️' }, 96: { desc: 'Tormenta', icon: '⛈️' }, 99: { desc: 'Tormenta', icon: '⛈️' },
+                          };
+                          const cur = codeMap[wData.current.weather_code] || { desc: 'Nublado', icon: '☁️' };
+                          setWeather({
+                            city: 'Tu ubicación', country: '',
+                            current: { temperature: wData.current.temperature_2m, feelsLike: wData.current.apparent_temperature, humidity: wData.current.relative_humidity_2m, windSpeed: wData.current.wind_speed_10m, description: cur.desc, icon: cur.icon },
+                            forecast: wData.daily.time.map((d: string, i: number) => {
+                              const f = codeMap[wData.daily.weather_code[i]] || { desc: 'Nublado', icon: '☁️' };
+                              const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+                              return { day: days[new Date(d + 'T00:00:00').getDay()], high: Math.round(wData.daily.temperature_2m_max[i]), low: Math.round(wData.daily.temperature_2m_min[i]), icon: f.icon, description: f.desc };
+                            }),
+                          });
+                          setWeatherStatus('ready');
+                        });
+                      },
+                      () => setWeatherStatus('denied'),
+                      { timeout: 10000, enableHighAccuracy: false }
+                    );
+                  }}
+                  className="text-xs text-sky-600 hover:text-sky-700 dark:text-sky-400 underline underline-offset-2"
+                >
+                  Permitir acceso a ubicación
+                </button>
               </div>
             ) : (
               <div className="flex items-center justify-center py-4">

@@ -131,7 +131,7 @@ export default function TvShowsSection() {
         setCoverPaths(coverCheck);
       }
     } catch {
-      toast.error('Error cargando TV Shows');
+      toast.error('Error cargando Series');
     } finally {
       setLoadingFiles(false);
     }
@@ -521,7 +521,7 @@ export default function TvShowsSection() {
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Carpetas de TV Shows</DialogTitle>
+            <DialogTitle>Carpetas de Series</DialogTitle>
             <DialogDescription>{folderPicker.pickerMode ? 'Navega y selecciona una carpeta' : 'Configura las carpetas donde buscas series'}</DialogDescription>
           </DialogHeader>
           {folderPicker.pickerMode ? (
@@ -671,10 +671,10 @@ export default function TvShowsSection() {
       {/* Tab Switcher */}
       <div className="flex gap-2">
         <Button variant={activeTab === 'local' ? 'default' : 'outline'} size="sm" className="h-8" onClick={() => setActiveTab('local')}>
-          <Monitor className="h-3.5 w-3.5 mr-1" />TV Shows de Archivo
+          <Monitor className="h-3.5 w-3.5 mr-1" />Series de Archivo
         </Button>
         <Button variant={activeTab === 'bookmarks' ? 'default' : 'outline'} size="sm" className="h-8" onClick={() => setActiveTab('bookmarks')}>
-          <Bookmark className="h-3.5 w-3.5 mr-1" />Mis TV Shows
+          <Bookmark className="h-3.5 w-3.5 mr-1" />Mis Series
         </Button>
       </div>
 
@@ -684,7 +684,7 @@ export default function TvShowsSection() {
           {(filteredFolders.length > 0 || filteredTvFiles.length > 0) && (
             <div>
               <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
-                <Monitor className="h-4 w-4" />TV Shows de Archivo
+                <Monitor className="h-4 w-4" />Series de Archivo
                 <Badge variant="secondary" className="text-xs">{filteredFolders.length + filteredTvFiles.length}</Badge>
               </h3>
               <div className="space-y-4">
@@ -730,7 +730,7 @@ export default function TvShowsSection() {
           {filteredBookmarks.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
-                <Bookmark className="h-4 w-4" />Mis TV Shows
+                <Bookmark className="h-4 w-4" />Mis Series
                 <Badge variant="secondary" className="text-xs">{filteredBookmarks.length}</Badge>
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
@@ -753,7 +753,7 @@ export default function TvShowsSection() {
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <Search className="h-12 w-12 text-muted-foreground/30 mb-3" />
                 <p className="font-medium mb-1">Sin resultados</p>
-                <p className="text-sm text-muted-foreground">No se encontró &quot;{tvSearchQuery}&quot; en archivos ni en Mis TV Shows</p>
+                <p className="text-sm text-muted-foreground">No se encontró &quot;{tvSearchQuery}&quot; en archivos ni en Mis Series</p>
               </CardContent>
             </Card>
           )}
@@ -779,7 +779,7 @@ export default function TvShowsSection() {
             <CardContent className="flex flex-col items-center justify-center py-16">
               <Monitor className="h-16 w-16 text-muted-foreground/30 mb-4" />
               <p className="font-medium mb-1">No hay videos aquí</p>
-              <p className="text-sm text-muted-foreground">Configura tus carpetas de TV Shows con el botón <MoreVertical className="h-3.5 w-3.5 inline" /> arriba</p>
+              <p className="text-sm text-muted-foreground">Configura tus carpetas de Series con el botón <MoreVertical className="h-3.5 w-3.5 inline" /> arriba</p>
             </CardContent>
           </Card>
         ) : (
