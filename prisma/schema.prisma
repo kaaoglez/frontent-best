@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String?   @unique
+  description String?
+  color       String    @default("#6B7280")
+  isPredefined Boolean  @default(false)
+  order       Int       @default(0)
+  parentId    String?
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  subcategories Category[] @relation("CategoryHierarchy")
+  books       Book[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Tag {
+  id    String    @id @default(cuid())
+  name  String    @unique
+  books BookTag[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BookTag {
+  bookId String
+  tagId  String
+  book   Book  @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  tag    Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([bookId, tagId])
+}
+
+model Book {
+  id             String   @id @default(cuid())
+  title          String
+  author         String
+  description    String?
+  isbn           String?
+  publisher      String?
+  yearPublished  Int?
+  pages          Int?
+  language       String   @default("Español")
+  format         String   @default("Físico")
+  coverUrl       String?
+  location       String?
+  status         String   @default("No leído")
+  rating         Int?
+  notes          String?
+  searchText     String?
+  categoryId     String?
+  category       Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  tags           BookTag[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Setting {
+  key   String @id
+  value String @default("")
+}
+
+model PrintJob {
+  id          String   @id @default(cuid())
+  fileName    String
+  filePath    String
+  printerName String?
+  status      String   @default("pending") // pending, printing, completed, failed, cancelled
+  copies      Int      @default(1)
+  pages       Int?
+  submittedBy String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model MovieBookmark {
+  id          String   @id @default(cuid())
+  tmdbId      Int?
+  title       String
+  originalTitle String?
+  overview    String?
+  posterPath  String?
+  backdropPath String?
+  releaseDate String?
+  voteAverage Float?
+  genreIds    String   @default("[]") // JSON array of genre IDs
+  streamingUrl String? // External streaming link
+  notes       String?
+  status      String   @default("pendiente") // pendiente, viendo, vista, favorita
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model RadioStation {
+  id          String   @id @default(cuid())
+  name        String
+  url         String
+  genre       String?
+  country     String?
+  description String?
+  faviconUrl  String?
+  isFavorite  Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model MusicBookmark {
+  id          String   @id @default(cuid())
+  title       String
+  artist      String?
+  album       String?
+  coverUrl    String?
+  externalUrl String? // External music link (Spotify, YouTube, etc.)
+  notes       String?
+  isFavorite  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TvShowBookmark {
+  id          String   @id @default(cuid())
+  title       String
+  posterPath  String?
+  streamingUrl String?
+  notes       String?
+  status      String   @default("pendiente") // pendiente, viendo, completada, abandonada, favorita
+  rating      Int?
+  seasons     Int?
+  currentSeason Int?
+  currentEpisode Int?
+  network     String?
+  genre       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BookBookmark {
+  id          String   @id @default(cuid())
+  title       String
+  author      String?
+  description String?
+  coverUrl    String?
+  externalUrl String? // External link (Amazon, Goodreads, Google Books, etc.)
+  isbn        String?
+  format      String   @default("Físico") // Físico, Digital, Audiolibro
+  status      String   @default("No leído") // No leído, Leyendo, Leído, Favorito
+  rating      Int?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
