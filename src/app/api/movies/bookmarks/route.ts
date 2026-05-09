@@ -61,17 +61,39 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Duplicate check by tmdbId
     if (tmdbId) {
       const existing = await db.movieBookmark.findFirst({
         where: { tmdbId: tmdbId as number },
       });
-
       if (existing) {
         return NextResponse.json(
           { error: 'Esta película ya está guardada', bookmark: existing },
           { status: 409 }
         );
       }
+    }
+
+    // Duplicate check by local path (heart favorite from folder)
+    if (notes && String(notes).startsWith('local:')) {
+      try {
+        const localInfo = JSON.parse(String(notes).slice(6));
+        if (localInfo.path) {
+          const allBookmarks = await db.movieBookmark.findMany({ where: { notes: { contains: 'local:' } } });
+          const duplicate = allBookmarks.find((bm) => {
+            try {
+              const info = JSON.parse(String(bm.notes).slice(6));
+              return info.path === localInfo.path;
+            } catch { return false; }
+          });
+          if (duplicate) {
+            return NextResponse.json(
+              { error: 'Esta carpeta ya está en favoritos', bookmark: duplicate },
+              { status: 409 }
+            );
+          }
+        }
+      } catch { /* ignore parse error */ }
     }
 
     const bookmark = await db.movieBookmark.create({

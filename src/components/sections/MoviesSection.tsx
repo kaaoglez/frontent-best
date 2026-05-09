@@ -8,10 +8,10 @@ import { useFolderPicker } from '@/hooks/useFolderPicker';
 import { useFileActions } from '@/hooks/useFileActions';
 import { FolderPickerContent } from '@/components/shared/FolderPickerContent';
 import {
-  X, RefreshCw, Upload, FolderPlus,
+  X, RefreshCw, Upload,
   ChevronRight, ChevronUp, Home as HomeIcon, Search, Plus, Edit,
   FolderOpen, Folder, MoreVertical, ExternalLink, ArrowUpDown,
-  Image as ImageIcon, Film, Play, Copy, Bookmark, HardDrive, Trash2,
+  Image as ImageIcon, Film, Play, Copy, Bookmark, Trash2,
   AlertTriangle, Maximize, Minimize, ArrowLeft, Heart,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';

@@ -30,6 +30,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     }
 
+    // Duplicate check by local path (heart favorite from folder)
+    if (notes && String(notes).startsWith('local:')) {
+      try {
+        const localInfo = JSON.parse(String(notes).slice(6));
+        if (localInfo.path) {
+          const allBookmarks = await db.tvShowBookmark.findMany({ where: { notes: { contains: 'local:' } } });
+          const duplicate = allBookmarks.find((bm) => {
+            try {
+              const info = JSON.parse(String(bm.notes).slice(6));
+              return info.path === localInfo.path;
+            } catch { return false; }
+          });
+          if (duplicate) {
+            return NextResponse.json(
+              { error: 'Esta serie ya está en favoritos', bookmark: duplicate },
+              { status: 409 }
+            );
+          }
+        }
+      } catch { /* ignore parse error */ }
+    }
+
     const bookmark = await db.tvShowBookmark.create({
       data: {
         title: title.trim(),

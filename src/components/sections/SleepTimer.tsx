@@ -23,6 +23,9 @@ export default function SleepTimer() {
   const [open, setOpen] = useState(false);
   const [customMinutes, setCustomMinutes] = useState('');
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const stopAllMediaRef = useRef(stopAllMedia);
+  const timerFinishedRef = useRef(false);
+  useEffect(() => { stopAllMediaRef.current = stopAllMedia; }, [stopAllMedia]);
 
   const isAnyMediaActive = isPlaying || radioPlaying || !!currentMovie;
 
@@ -32,20 +35,28 @@ export default function SleepTimer() {
       if (intervalRef.current) clearInterval(intervalRef.current);
       return;
     }
+    timerFinishedRef.current = false;
     intervalRef.current = setInterval(() => {
       setSecondsLeft((prev) => {
         if (prev === null || prev <= 1) {
           if (intervalRef.current) clearInterval(intervalRef.current);
-          // Timer finished — stop everything
-          stopAllMedia();
-          toast.success('Temporizador de sueño: se detuvo la reproducción');
+          timerFinishedRef.current = true;
           return null;
         }
         return prev - 1;
       });
     }, 1000);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [secondsLeft, stopAllMedia]);
+  }, [secondsLeft]);
+
+  // Handle timer completion in a separate effect (after render, not during)
+  useEffect(() => {
+    if (timerFinishedRef.current) {
+      timerFinishedRef.current = false;
+      stopAllMediaRef.current();
+      toast.success('Temporizador de sueño: se detuvo la reproducción');
+    }
+  }, [secondsLeft]);
 
   const setTimer = (minutes: number) => {
     setSecondsLeft(minutes * 60);
@@ -62,6 +73,7 @@ export default function SleepTimer() {
   };
 
   const cancelTimer = () => {
+    timerFinishedRef.current = false;
     setSecondsLeft(null);
     if (intervalRef.current) clearInterval(intervalRef.current);
     toast.info('Temporizador cancelado');

@@ -7047,3 +7047,506 @@ prisma:query UPDATE `main`.`MovieBookmark` SET `title` = ?, `status` = ?, `updat
  GET /api/movies/bookmarks 200 in 10ms (next.js: 3ms, application-code: 7ms)
 prisma:query SELECT `main`.`MovieBookmark`.`id`, `main`.`MovieBookmark`.`tmdbId`, `main`.`MovieBookmark`.`title`, `main`.`MovieBookmark`.`originalTitle`, `main`.`MovieBookmark`.`overview`, `main`.`MovieBookmark`.`posterPath`, `main`.`MovieBookmark`.`backdropPath`, `main`.`MovieBookmark`.`releaseDate`, `main`.`MovieBookmark`.`voteAverage`, `main`.`MovieBookmark`.`genreIds`, `main`.`MovieBookmark`.`streamingUrl`, `main`.`MovieBookmark`.`notes`, `main`.`MovieBookmark`.`status`, `main`.`MovieBookmark`.`createdAt`, `main`.`MovieBookmark`.`updatedAt` FROM `main`.`MovieBookmark` WHERE `main`.`MovieBookmark`.`status` <> ? ORDER BY `main`.`MovieBookmark`.`createdAt` DESC LIMIT ? OFFSET ?
  GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FGladiator%20II%20(2024) 200 in 13ms (next.js: 4ms, application-code: 10ms)
+ GET / 200 in 190ms (next.js: 11ms, application-code: 179ms)
+ GET /api/server-stats 200 in 65ms (next.js: 5ms, application-code: 60ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Setting`.`key`, `main`.`Setting`.`value` FROM `main`.`Setting` WHERE `main`.`Setting`.`key` IN (?,?,?) LIMIT ? OFFSET ?
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`Book`.`id` FROM `main`.`Book` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT 1
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`Book`.`id` FROM `main`.`Book` WHERE `main`.`Book`.`status` = ? LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT SUM(`pages`) AS `_sum$pages` FROM (SELECT `main`.`Book`.`pages` FROM `main`.`Book` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT `main`.`Book`.`author` FROM `main`.`Book` WHERE 1=1 GROUP BY `main`.`Book`.`author` LIMIT ? OFFSET ?
+ GET /api/dashboard/stats 200 in 2.0s (next.js: 4ms, application-code: 2.0s)
+ GET /api/news?cc=CA 200 in 248ms (next.js: 6ms, application-code: 242ms)
+ GET /api/settings?key=imageLibraryPaths 200 in 17ms (next.js: 6ms, application-code: 11ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Setting`.`key`, `main`.`Setting`.`value` FROM `main`.`Setting` WHERE (`main`.`Setting`.`key` = ? AND 1=1) LIMIT ? OFFSET ?
+ GET /api/media/stream?path=%2Fhome%2Fz&type=image 404 in 12ms (next.js: 6ms, application-code: 6ms)
+ GET /api/images/bookmarks 200 in 67ms (next.js: 55ms, application-code: 11ms)
+prisma:query SELECT `main`.`MovieBookmark`.`id`, `main`.`MovieBookmark`.`tmdbId`, `main`.`MovieBookmark`.`title`, `main`.`MovieBookmark`.`originalTitle`, `main`.`MovieBookmark`.`overview`, `main`.`MovieBookmark`.`posterPath`, `main`.`MovieBookmark`.`backdropPath`, `main`.`MovieBookmark`.`releaseDate`, `main`.`MovieBookmark`.`voteAverage`, `main`.`MovieBookmark`.`genreIds`, `main`.`MovieBookmark`.`streamingUrl`, `main`.`MovieBookmark`.`notes`, `main`.`MovieBookmark`.`status`, `main`.`MovieBookmark`.`createdAt`, `main`.`MovieBookmark`.`updatedAt` FROM `main`.`MovieBookmark` WHERE `main`.`MovieBookmark`.`status` = ? ORDER BY `main`.`MovieBookmark`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos&type=image 200 in 15ms (next.js: 6ms, application-code: 10ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera&type=image 200 in 111ms (next.js: 6ms, application-code: 105ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos&type=image 200 in 18ms (next.js: 5ms, application-code: 13ms)
+ GET /api/media/stream?path=%2Fhome%2Fz&type=video 404 in 13ms (next.js: 7ms, application-code: 6ms)
+ GET /api/settings?key=tvshowLibraryPaths 200 in 21ms (next.js: 6ms, application-code: 15ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Setting`.`key`, `main`.`Setting`.`value` FROM `main`.`Setting` WHERE (`main`.`Setting`.`key` = ? AND 1=1) LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`TvShowBookmark`.`id`, `main`.`TvShowBookmark`.`title`, `main`.`TvShowBookmark`.`posterPath`, `main`.`TvShowBookmark`.`streamingUrl`, `main`.`TvShowBookmark`.`notes`, `main`.`TvShowBookmark`.`status`, `main`.`TvShowBookmark`.`rating`, `main`.`TvShowBookmark`.`seasons`, `main`.`TvShowBookmark`.`currentSeason`, `main`.`TvShowBookmark`.`currentEpisode`, `main`.`TvShowBookmark`.`network`, `main`.`TvShowBookmark`.`genre`, `main`.`TvShowBookmark`.`createdAt`, `main`.`TvShowBookmark`.`updatedAt` FROM `main`.`TvShowBookmark` WHERE 1=1 ORDER BY `main`.`TvShowBookmark`.`updatedAt` DESC LIMIT ? OFFSET ?
+ GET /api/tvshows/bookmarks 200 in 24ms (next.js: 13ms, application-code: 11ms)
+ GET /api/media/stream?path=%2Fmnt%2FCanal%2FTV%20Shows&type=video 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FTV%20Shows%2FFallout%20-%20Season%201 200 in 13ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FTV%20Shows%2FFallout%20-%20Season%202 200 in 15ms (next.js: 5ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FTV%20Shows%2FHouse%20Of%20The%20Dragon%20Season%201 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FTV%20Shows%2FHouse%20Of%20The%20Dragon%20Season%202 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FTV%20Shows%2FRome%20-%20Seasons%201%20and%202 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/settings?key=libraryLibraryPaths 200 in 15ms (next.js: 5ms, application-code: 11ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Setting`.`key`, `main`.`Setting`.`value` FROM `main`.`Setting` WHERE (`main`.`Setting`.`key` = ? AND 1=1) LIMIT ? OFFSET ?
+ GET /api/books/scan?path=%2Fmnt%2FCanal 200 in 38ms (next.js: 11ms, application-code: 27ms)
+ GET /api/books/bookmarks?status=all 200 in 45ms (next.js: 8ms, application-code: 37ms)
+prisma:query SELECT `main`.`BookBookmark`.`id`, `main`.`BookBookmark`.`title`, `main`.`BookBookmark`.`author`, `main`.`BookBookmark`.`description`, `main`.`BookBookmark`.`coverUrl`, `main`.`BookBookmark`.`externalUrl`, `main`.`BookBookmark`.`isbn`, `main`.`BookBookmark`.`format`, `main`.`BookBookmark`.`status`, `main`.`BookBookmark`.`rating`, `main`.`BookBookmark`.`notes`, `main`.`BookBookmark`.`createdAt`, `main`.`BookBookmark`.`updatedAt` FROM `main`.`BookBookmark` WHERE 1=1 ORDER BY `main`.`BookBookmark`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/books/scan?path=%2Fmnt%2FTools%2FBooks 200 in 15ms (next.js: 3ms, application-code: 12ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2F%24RECYCLE.BIN 200 in 12ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FAOsmany%20128 200 in 14ms (next.js: 5ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2FCalibre%20Library 200 in 14ms (next.js: 5ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FBackgrounds 200 in 12ms (next.js: 5ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2FFine%20Woodworking%202025 200 in 16ms (next.js: 6ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FClips 200 in 17ms (next.js: 5ms, application-code: 12ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2FHow_to_Expect_the_Unexpected_-_Kit_Yates 200 in 15ms (next.js: 5ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FDownload 200 in 13ms (next.js: 5ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2FMicrosoft%20Excel%20Step%20by%20Step%20(Office%202021%20and%20Microsoft%20365) 200 in 14ms (next.js: 6ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FDownloads 200 in 27ms (next.js: 17ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FEfectos 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2FScience_of_Human_Possibilities_2C_The_-_V_Kumar_Murty 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FExtra%20Elements%20(%20Footage%20) 200 in 16ms (next.js: 5ms, application-code: 11ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2FThe%20New%20York%20Times%20Best%20Sellers%20-%20April%2019%2C%202026 200 in 15ms (next.js: 5ms, application-code: 11ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FFont 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2Ffound.000 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2Ffound.001 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2Ffound.002 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2Ffound.003 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2Ficons 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FImage 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FImagenes 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FInstagram 200 in 14ms (next.js: 5ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMaggazine 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMusic 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FOh%20Q%20Musica 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FOlympic 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FPicture 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2Fpropuestasmusicale 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FProyectos 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FSounds 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FState%20of%20Art 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FSubtitels 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FSystem%20Volume%20Information 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FTV%20Shows 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FVideos 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FYoly%20Bazar 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/books/scan?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection 200 in 30ms (next.js: 3ms, application-code: 26ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FArt%20of%20Speed%20Reading%20Body%20Language 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FCovers 200 in 14ms (next.js: 3ms, application-code: 11ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20-%202%20BOOKS%20IN%201%20-%20The%20Complete%20Guide%20to%20Mind%20Control%2C%20Manipulation%2C%20Reverse%20Psychology 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20-%207%20Books%20in%201%20-%20Everything%20You%20Need%20to%20Know%20About%20Manipulation%2C%20Mind%20Control 200 in 12ms (next.js: 4ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20-%207%20in%201%20-%20The%20Art%20of%20Persuasion%2C%20How%20to%20influence%20people%2C%20Hypnosis%20Techniques 200 in 12ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20-%209%20IN%201%20-%20The%20Complete%20Body%20Language%20Guide%20to%20Take%20Full%20Control%20Of%20Your%20Life 200 in 12ms (next.js: 4ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20-%20How%20to%20Analyze%20People%2C%20and%20Their%20Emotional%20Intelligence%20To%20Be%20Able%20to%20Avoid 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20-%20Learn%20the%20Practical%20Uses%20and%20Defenses%20of%20Manipulation%2C%20Emotional%20Influence 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20-%20Mind%20Control%20and%20Manipulation%20Secrets 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20-%20The%20only%20practical%20guide%20that%20will%20teach%20you%20the%20secrets%20to%20analyze%20people 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20-%20The%20Practical%20Uses%20and%20Best%20Defenses%20of%20Psychological%20Warfare%20in%20Everyday%20Life 200 in 16ms (next.js: 8ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20-%20Uncover%20the%20Secrets%20to%20Defend%20Yourself%20Against%20Mind%20Control%2C%20Deception 200 in 13ms (next.js: 4ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20-%20What%20You%20Need%20to%20Know%20About%20Persuasion%2C%20Manipulation%2C%20NLP%2C%20Negotiation 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20psychology%20202%20-%20The%20advance%20secrets%20of%20psychological%20warfare%2C%20dark%20NLP%2C%20dark%20cognitive 200 in 13ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDARK%20PSYCHOLOGY%206%20BOOKS%20IN%201%20-%20Introducing%20Psychology%2CHow%20To%20Analyze%20People%2CManipulation 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20and%20Analyze%20People%20-%20The%20Ultimate%20Guide%20to%20Body%20Language%20Analyze%2C%20Persuasion 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20and%20Emotional%20Manipulation%20-%207%20Ways%20You%20Can%20Handle%20the%20Cognitive%20Neuroscience 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20and%20Emotional%20Manipulation%20Mastery%20-%20For%20a%20successful%20life%2C%20the%20last%20NLP%20techniques 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20and%20Manipulation%20-%202%20in%201%20-%20Discover%20the%20hidden%20secrets%20of%20Dark%20Psychology%2C%20NLP 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20and%20Manipulation%20-%203%20Books%20in%201%20-%20The%20Complete%20Guide%20to%20Dark%20Psychology 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20and%20Manipulation%20-%203%20in%201%20-%20Improve%20your%20life%20by%20Speed%20Reading%20People%20and%20Analyze 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20and%20Manipulation%20-%20Delve%20Into%20Darkness%20and%20Learn%20the%20Subtle%20Art%20of%20Hacking 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20and%20Manipulation%20-%20Improve%20Your%20Life%20by%20Understanding%20Persuasion%2C%20Body%20Language 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FBooks%2F50%20Dark%20Psychology%20%26%20Manipulation%20Books%20Collection%2FDark%20Psychology%20and%20Manipulation%20-%20Manipulators%20are%20All%20Around%20Us%20and%20are%20Tricky%20to%20Spot 200 in 9.1s (next.js: 5ms, application-code: 9.1s)
+✓ Compiled in 173ms
+ GET /api/settings?key=musicLibraryPaths 200 in 13ms (next.js: 4ms, application-code: 10ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Setting`.`key`, `main`.`Setting`.`value` FROM `main`.`Setting` WHERE (`main`.`Setting`.`key` = ? AND 1=1) LIMIT ? OFFSET ?
+ GET /api/media/stream?path=%2Fhome%2Fz&type=audio 404 in 10ms (next.js: 5ms, application-code: 6ms)
+ GET /api/music/bookmarks 200 in 81ms (next.js: 69ms, application-code: 12ms)
+prisma:query SELECT `main`.`MusicBookmark`.`id`, `main`.`MusicBookmark`.`title`, `main`.`MusicBookmark`.`artist`, `main`.`MusicBookmark`.`album`, `main`.`MusicBookmark`.`coverUrl`, `main`.`MusicBookmark`.`externalUrl`, `main`.`MusicBookmark`.`notes`, `main`.`MusicBookmark`.`isFavorite`, `main`.`MusicBookmark`.`createdAt`, `main`.`MusicBookmark`.`updatedAt` FROM `main`.`MusicBookmark` WHERE 1=1 ORDER BY `main`.`MusicBookmark`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMusic&type=audio 200 in 35ms (next.js: 4ms, application-code: 31ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2F%5Bnextorrent.com%5D%207Os8Os9Os 200 in 11ms (next.js: 4ms, application-code: 7ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FAerosmith%20-%201973%20-%20Aerosmith%20(Legendary%20Expanded%20Edition%202026)%20(24bit-48kHz) 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FAnd%20The%20-%20Legendary%20Guitar%20Solos(2020)(POP) 200 in 14ms (next.js: 5ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FBee%20Gees%20-%20Essentials%20(2021)%20Mp3%20320kbps%20%5BPMEDIA%5D%20%E2%AD%90%EF%B8%8F 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FBilly%20Joel%20-%20Greatest%20Hits%20%5BUltimate%5D%202CD%20Set%20With%20%5BCovers%5D%20%5BBubanee%5D 200 in 13ms (next.js: 5ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FClasica 200 in 8ms (next.js: 1970µs, application-code: 6ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FClassic%20Rock%20Music%20-%20Compilation%20Mix%20-%20Playlist 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FEd%20Sheeran%20-%20Essentials%20(2021)%20Mp3%20320kbps%20%5BPMEDIA%5D%20%E2%AD%90%EF%B8%8F 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FEl%20Micha 200 in 16ms (next.js: 7ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FEl%20tiger 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FEminem%20-%20Best%20Of%20The%20Best%20(2018)%20Mp3%20Album%20320%20kbps%20Quality%20%5BPMEDIA%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FEric%20Clapton%20Unplugged%20Deluxe%20Edition 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FFito%20P%C3%A1ez 200 in 13ms (next.js: 4ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FGuns%20N%27%20Roses%20-%20Greatest%20Hits%20(2004)%20%20%5BMP3%20320%5D%2088 200 in 10ms (next.js: 3ms, application-code: 7ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FGuns%20N%27%20Roses%20-%20Greatest%20Hits%20Live%20Broadcast%20Collection%20(2025)%20Mp3%20320kbps%20%5BPMEDIA%5D%20%E2%AD%90%EF%B8%8F 200 in 14ms (next.js: 6ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FJames%20Blunt%20-%20Once%20Upon%20A%20Mind%20(2019)%20Mp3%20(320kbps)%20%5BHunter%5D 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FJazz%20Erotic%20Lounge%20Collective%20-%20Erotic%20Day%20in%20Bedroom_%20Sensual%20Background%20Music%20for%20Making%20Love%20(2023)%20Mp3%20320kbps%20%5BPMEDIA%5D%20%E2%AD%90%EF%B8%8F 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FJohn%20Lennon%20-%20greatest%20hits.%5BiDN_CreW%5D 200 in 15ms (next.js: 7ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FJohn%20Lennon%20-%20Mind%20Games%20(The%20Ultimate%20Collection)%20(2024)%20Mp3%20320kbps%20%5BPMEDIA%5D%20%E2%AD%90%EF%B8%8F 200 in 13ms (next.js: 4ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FKool%20and%20the%20Gang 200 in 11ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FKool%20And%20The%20Gang%20%E2%80%93%20Gold%20Disc%201 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FKool%20And%20The%20Gang%20%E2%80%93%20Gold%20Disc%202 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FKool%20and%20The%20Gang%20Icon%20Greatest%20Hits%20%5BBubanee%5D 200 in 13ms (next.js: 4ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2Flatinos 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FLed%20Zeppelin%20-%20Greatest%20Hits%20(2008)%20%5BMP3%20320%5D%2088 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FLed%20Zeppelin%20-%20Greatest%20Hits%20Live%20Broadcast%20Collection%20(2025)%20Mp3%20320kbps%20%5BPMEDIA%5D%20%E2%AD%90%EF%B8%8F 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FLenny%20Kravitz%20-%20Blue%20Electric%20Light%20%20(2024)%20Mp3%20320kbps%20%5BPMEDIA%5D%20%E2%AD%90%EF%B8%8F 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FLionel%20Richie%20greatest%20hits%20(1) 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FMadonna%20-%20Essentials%20(2019) 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FManu%20Chao%20-%20La%20Radiolina%20%5BMP3%40320%5D%20%5Bpastafari%5D 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FMICHAEL%20JACKSON%20-%20Discography%20%5BStudio%5D%201979%20To%202001%20%5BBubanee%5D 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FMICHAEL%20JACKSON%20GREATEST%20HITS 200 in 11ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FMusiquit 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FPablo%20Milanes%20-%20Grandes%20Exitos%201995 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FPhil%20Collins%20-%20Essentials%20(2022)%20Mp3%20320kbps%20%5BPMEDIA%5D%20%E2%AD%90%EF%B8%8F 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FPhil%20Collins-Greatest.Hits.2010.www.lokotorrents.com 200 in 14ms (next.js: 5ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FPlay%20list 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FQueen%20-%20Greatest%20Hits%20I%2C%20II%20%26%20III%20(The%20Platinum%20Collection)%20%5B3CD%20Box%20Set%5D%202014%20MP3 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FRammstein%20-%20Essentials%20(2018) 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FRap 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FRed%20Hot%20Chili%20Peppers%20-%20Discography%201984-2022%20%5BMp3%20320%5D%20vtwin88cube 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FRed%20Hot%20Chili%20Peppers%20-%20Unlimited%20Love%20(2022)%20Mp3%20320kbps%20%5BPMEDIA%5D%20%E2%AD%90%EF%B8%8F 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FReparto 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FRoberto%20Carlos%20-%2040%20Grandes%20Exitos 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2Fromantico 200 in 10ms (next.js: 3ms, application-code: 7ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FSilvio%20Rodriguez%20(Cuba) 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FSnoop%20Dogg%20-%2010%20Til%27%20Midnight%20(2026%20Hip%20Hop%20Rap)%20%5BFlac%2024-44%5D 200 in 12ms (next.js: 4ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FThe%20Beatles%20-%20Anthology%20Collection%20(2025)%20Mp3%20(320kbps)%20%5BHunter%5D 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FThe%20Beatles%20%5B2009%5D%20Greatest%20Hits%20CDRip%20%5BRemastered%5D%5BBubanee%5D 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FThe%20Rolling%20Stones%20-%20Discography%201964-2023%20%5BMP3%20320%5D%2088 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FThe%20Rolling%20Stones%20-%20Hackney%20Diamonds%20(2023)%20Mp3%20320kbps%20%5BPMEDIA%5D%20%E2%AD%90%EF%B8%8F 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FTop%20100%20DJs%20Chart%20(27-January-2023)%20Mp3%20320kbps%20%5BPMEDIA%5D%20%E2%AD%90%EF%B8%8F 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FVA%20-%20100%20Greatest%20Rock%20Songs%20Ever%20(Mp3%20320kbps%20Quality)%20%5BPMEDIA%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FVA%20-%2060%20Minutes%20Relaxing%20Music(2016)(POP) 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FVA%20-%20The%20Best%2080s%20Car%20Songs%20Album%20In%20The%20World%20Ever%20(3CD)%20(2021)%20Mp3%20320kbps%20%5BPMEDIA%5D%20%E2%AD%90%EF%B8%8F 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FVA%20-%20VH1%20100%20Greatest%20Hard%20Rock%20Songs%20(2020) 200 in 11ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FVarious%20Artists%20-%20Trending%20Pop%20(2025)%20Mp3%20320kbps%20%5BPMEDIA%5D%20%E2%AD%90%EF%B8%8F 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FTools%2FMusic%2FWillie%20Nelson%20-%20Greatest%20Songs%20(2018)%20Mp3%20320kbps%20Quality%20Songs 200 in 11ms (next.js: 3ms, application-code: 8ms)
+✓ Compiled in 143ms
+✓ Compiled in 200ms
+✓ Compiled in 162ms
+ GET /api/media/stream?path=%2Fmnt%2FCanal%2FMovies&type=video 200 in 22ms (next.js: 3ms, application-code: 19ms)
+ GET /api/settings?key=movieLibraryPaths 200 in 9ms (next.js: 3ms, application-code: 6ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Setting`.`key`, `main`.`Setting`.`value` FROM `main`.`Setting` WHERE (`main`.`Setting`.`key` = ? AND 1=1) LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`MovieBookmark`.`id`, `main`.`MovieBookmark`.`tmdbId`, `main`.`MovieBookmark`.`title`, `main`.`MovieBookmark`.`originalTitle`, `main`.`MovieBookmark`.`overview`, `main`.`MovieBookmark`.`posterPath`, `main`.`MovieBookmark`.`backdropPath`, `main`.`MovieBookmark`.`releaseDate`, `main`.`MovieBookmark`.`voteAverage`, `main`.`MovieBookmark`.`genreIds`, `main`.`MovieBookmark`.`streamingUrl`, `main`.`MovieBookmark`.`notes`, `main`.`MovieBookmark`.`status`, `main`.`MovieBookmark`.`createdAt`, `main`.`MovieBookmark`.`updatedAt` FROM `main`.`MovieBookmark` WHERE `main`.`MovieBookmark`.`status` <> ? ORDER BY `main`.`MovieBookmark`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/movies/bookmarks 200 in 10ms (next.js: 4ms, application-code: 6ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FA%20Bittersweet%20Life%20(2005) 200 in 8ms (next.js: 2ms, application-code: 6ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FAniara.2018 200 in 10ms (next.js: 2ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FAnnihilation.2018 200 in 7ms (next.js: 1910µs, application-code: 5ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FAnora 200 in 8ms (next.js: 2ms, application-code: 6ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FApex%20(2026) 200 in 8ms (next.js: 1976µs, application-code: 6ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FArrival%202016 200 in 8ms (next.js: 2ms, application-code: 6ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FBad%20Man%20(2025) 200 in 7ms (next.js: 2ms, application-code: 5ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FBlade%20Runner%20(1982) 200 in 7ms (next.js: 1944µs, application-code: 5ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FBlade.Runner.2049%20(2017) 200 in 7ms (next.js: 1977µs, application-code: 5ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FCenturion%20(2010) 200 in 8ms (next.js: 2ms, application-code: 6ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FCoherence%20-%20Unrated%20Sci-Fi%202013 200 in 7ms (next.js: 2ms, application-code: 5ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FCool%20Hand%20Luke%20(1967) 200 in 8ms (next.js: 2ms, application-code: 6ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FDark.City.1998. 200 in 12ms (next.js: 4ms, application-code: 7ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FDead%20Poets%20Society%201989 200 in 10ms (next.js: 3ms, application-code: 7ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FElite.Squad.The.Enemy.Within.2010 200 in 11ms (next.js: 2ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FEnemy%20of%20the%20State%20(1998) 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FFalling%20Down%20(1993) 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FFlight.Risk 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FFlow%202024 200 in 8ms (next.js: 2ms, application-code: 6ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FForbidden%20Fruits%20(2026) 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FGladiator%20II%20(2024) 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FGood%20Will%20Hunting%20(1997) 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FInception%20(2010) 200 in 12ms (next.js: 4ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FInglourious%20Basterds%202009 200 in 10ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FInterstellar%20(2014)%20(2014) 200 in 11ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FKill%20Boksoon%202023 200 in 11ms (next.js: 2ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FKingsman%20The%20Secret%20Service%20(2014) 200 in 10ms (next.js: 3ms, application-code: 7ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FKingsman.The.Golden.Circle.2017.1080p.10bit.BluRay.8CH.x265.HEVC-PSA 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FMean%20Streets%20(1973)%20%5B1080p%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FMemento%20(2000)%20%5B1080p%5D 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FMexicali%20(2026)%20%5B1080p%5D%20%5BWEBRip%5D%20%5Bx265%5D%20%5B10bit%5D%20%5B5.1%5D%20%5BYTS.BZ%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FMoon%20(2009)%20%5B1080p%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FNo%20Ordinary%20Heist%20(2026)%20%5B1080p%5D%20%5BWEBRip%5D%20%5B5.1%5D%20%5BYTS.BZ%5D 200 in 19ms (next.js: 11ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FOne%20Battle%20After%20Another%20(2025)%20%5B1080p%5D%20%5BWEBRip%5D%20%5B5.1%5D%20%5BYTS.MX%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FPredestination%20(2014)%20%5B1080p%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FProject%20Hail%20Mary 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FPublic%20Enemies%20(2009)%20%5B1080p%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FPulp%20Fiction%20(1994)%20%5B1080p%5D 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FRaging%20Bull%20(1980)%20%5B1080p%5D 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FReservoir%20Dogs%20(1992)%20%5B1080p%5D 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FSwapped%20(2026)%20%5B1080p%5D%20%5BWEBRip%5D%20%5B5.1%5D%20%5BYTS.BZ%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Blackout 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Brutalist%20(2024)%20%5B1080p%5D%20%5BWEBRip%5D%20%5B5.1%5D%20%5BYTS.MX%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20IT%20Crowd%20Complete%20Season%201-5%20DVDRip%20H264%20BONE 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Lord%20Of%20The%20Rings%20The%20War%20Of%20The%20Rohirrim%20(2024)%20%5B1080p%5D%20%5BWEBRip%5D%20%5B5.1%5D%20%5BYTS.MX%5D 200 in 10ms (next.js: 3ms, application-code: 7ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Matrix%201-4%20Pack%201999-2021%20REMASTERED%201080p%20BluRay%20HEVC%20x265%205.1%20BONE 200 in 10ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Order%20(2024)%20%5B720p%5D%20%5BWEBRip%5D%20%5BYTS.MX%5D 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Shining%201980 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Six%20Triple%20Eight%20(2024)%20%5B1080p%5D%20%5BWEBRip%5D%20%5B5.1%5D%20%5BYTS.MX%5D 200 in 14ms (next.js: 5ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Station%20Agent%20(2003).1080p.h264.ita.eng.sub.ita-MIRCrew 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Usual%20Suspects%20(1995)%20%5BBluRay%5D%20%5B1080p%5D%20%5BYTS.AM%5D 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Wolf%20of%20Wall%20Street%20(2013)%20%5B1080p%5D 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe.Hunt.for.Red.October.1990.REMASTERED.1080p.BluRay.H264.AAC-RARBG 200 in 11ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe.Little.Things.2021.HDRip.XviD.AC3-EVO 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe.Night.Comes.for.Us.2018.HDRip.XviD.AC3-EVO 200 in 15ms (next.js: 5ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe.Proposition.2005.2160p.BluRay.3500MB.DDP5.1.x264-GalaxyRG%5BTGx%5D 200 in 11ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe.Substance.2024.1080p.WEBRip.1600MB.DD5.1.x264-GalaxyRG%5BTGx%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FUnder%20the%20Skin%20(2013)%20%5B1080p%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FUpgrade%20(2018)%20%5BWEBRip%5D%20%5B1080p%5D%20%5BYTS.AM%5D 200 in 9ms (next.js: 2ms, application-code: 7ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FVenganza%20(2026)%20%5B1080p%5D%20%5BWEBRip%5D%20%5Bx265%5D%20%5B10bit%5D%20%5B5.1%5D%20%5BYTS.BZ%5D 200 in 8ms (next.js: 2ms, application-code: 6ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FWicked.2024.1080p.WEBRip.10Bit.DDP5.1.x265-Asiimov 200 in 13ms (next.js: 5ms, application-code: 8ms)
+✓ Compiled in 164ms
+✓ Compiled in 100ms
+ GET / 200 in 155ms (next.js: 7ms, application-code: 149ms)
+ GET /api/server-stats 200 in 50ms (next.js: 4ms, application-code: 46ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Setting`.`key`, `main`.`Setting`.`value` FROM `main`.`Setting` WHERE `main`.`Setting`.`key` IN (?,?,?) LIMIT ? OFFSET ?
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`Book`.`id` FROM `main`.`Book` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT 1
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`Book`.`id` FROM `main`.`Book` WHERE `main`.`Book`.`status` = ? LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT SUM(`pages`) AS `_sum$pages` FROM (SELECT `main`.`Book`.`pages` FROM `main`.`Book` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT `main`.`Book`.`author` FROM `main`.`Book` WHERE 1=1 GROUP BY `main`.`Book`.`author` LIMIT ? OFFSET ?
+ GET /api/dashboard/stats 200 in 1979ms (next.js: 2ms, application-code: 1977ms)
+ GET /api/news?cc=CA 200 in 267ms (next.js: 6ms, application-code: 261ms)
+ GET /api/media/stream?path=%2Fhome%2Fz&type=video 404 in 10ms (next.js: 4ms, application-code: 6ms)
+prisma:query SELECT `main`.`Setting`.`key`, `main`.`Setting`.`value` FROM `main`.`Setting` WHERE (`main`.`Setting`.`key` = ? AND 1=1) LIMIT ? OFFSET ?
+ GET /api/settings?key=movieLibraryPaths 200 in 11ms (next.js: 3ms, application-code: 8ms)
+prisma:query SELECT `main`.`MovieBookmark`.`id`, `main`.`MovieBookmark`.`tmdbId`, `main`.`MovieBookmark`.`title`, `main`.`MovieBookmark`.`originalTitle`, `main`.`MovieBookmark`.`overview`, `main`.`MovieBookmark`.`posterPath`, `main`.`MovieBookmark`.`backdropPath`, `main`.`MovieBookmark`.`releaseDate`, `main`.`MovieBookmark`.`voteAverage`, `main`.`MovieBookmark`.`genreIds`, `main`.`MovieBookmark`.`streamingUrl`, `main`.`MovieBookmark`.`notes`, `main`.`MovieBookmark`.`status`, `main`.`MovieBookmark`.`createdAt`, `main`.`MovieBookmark`.`updatedAt` FROM `main`.`MovieBookmark` WHERE `main`.`MovieBookmark`.`status` <> ? ORDER BY `main`.`MovieBookmark`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/movies/bookmarks 200 in 15ms (next.js: 4ms, application-code: 11ms)
+ GET /api/media/stream?path=%2Fmnt%2FCanal%2FMovies&type=video 200 in 23ms (next.js: 3ms, application-code: 20ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FBlade%20Runner%20(1982) 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FBlade.Runner.2049%20(2017) 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FCenturion%20(2010) 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FCoherence%20-%20Unrated%20Sci-Fi%202013 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FCool%20Hand%20Luke%20(1967) 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FDark.City.1998. 200 in 12ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FDead%20Poets%20Society%201989 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FElite.Squad.The.Enemy.Within.2010 200 in 11ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FEnemy%20of%20the%20State%20(1998) 200 in 17ms (next.js: 8ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FFalling%20Down%20(1993) 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FFlight.Risk 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FFlow%202024 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FForbidden%20Fruits%20(2026) 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FGladiator%20II%20(2024) 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FGood%20Will%20Hunting%20(1997) 200 in 11ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FInception%20(2010) 200 in 10ms (next.js: 3ms, application-code: 7ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FInglourious%20Basterds%202009 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FInterstellar%20(2014)%20(2014) 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FKill%20Boksoon%202023 200 in 12ms (next.js: 4ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FKingsman%20The%20Secret%20Service%20(2014) 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FKingsman.The.Golden.Circle.2017.1080p.10bit.BluRay.8CH.x265.HEVC-PSA 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FMean%20Streets%20(1973)%20%5B1080p%5D 200 in 12ms (next.js: 4ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FMemento%20(2000)%20%5B1080p%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FMexicali%20(2026)%20%5B1080p%5D%20%5BWEBRip%5D%20%5Bx265%5D%20%5B10bit%5D%20%5B5.1%5D%20%5BYTS.BZ%5D 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FMoon%20(2009)%20%5B1080p%5D 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FNo%20Ordinary%20Heist%20(2026)%20%5B1080p%5D%20%5BWEBRip%5D%20%5B5.1%5D%20%5BYTS.BZ%5D 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FOne%20Battle%20After%20Another%20(2025)%20%5B1080p%5D%20%5BWEBRip%5D%20%5B5.1%5D%20%5BYTS.MX%5D 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FPredestination%20(2014)%20%5B1080p%5D 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FProject%20Hail%20Mary 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FPublic%20Enemies%20(2009)%20%5B1080p%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FPulp%20Fiction%20(1994)%20%5B1080p%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FRaging%20Bull%20(1980)%20%5B1080p%5D 200 in 14ms (next.js: 6ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FReservoir%20Dogs%20(1992)%20%5B1080p%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FSwapped%20(2026)%20%5B1080p%5D%20%5BWEBRip%5D%20%5B5.1%5D%20%5BYTS.BZ%5D 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Blackout 200 in 10ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Brutalist%20(2024)%20%5B1080p%5D%20%5BWEBRip%5D%20%5B5.1%5D%20%5BYTS.MX%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20IT%20Crowd%20Complete%20Season%201-5%20DVDRip%20H264%20BONE 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Lord%20Of%20The%20Rings%20The%20War%20Of%20The%20Rohirrim%20(2024)%20%5B1080p%5D%20%5BWEBRip%5D%20%5B5.1%5D%20%5BYTS.MX%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Matrix%201-4%20Pack%201999-2021%20REMASTERED%201080p%20BluRay%20HEVC%20x265%205.1%20BONE 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Order%20(2024)%20%5B720p%5D%20%5BWEBRip%5D%20%5BYTS.MX%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Shining%201980 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Six%20Triple%20Eight%20(2024)%20%5B1080p%5D%20%5BWEBRip%5D%20%5B5.1%5D%20%5BYTS.MX%5D 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Station%20Agent%20(2003).1080p.h264.ita.eng.sub.ita-MIRCrew 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Usual%20Suspects%20(1995)%20%5BBluRay%5D%20%5B1080p%5D%20%5BYTS.AM%5D 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe%20Wolf%20of%20Wall%20Street%20(2013)%20%5B1080p%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe.Hunt.for.Red.October.1990.REMASTERED.1080p.BluRay.H264.AAC-RARBG 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe.Little.Things.2021.HDRip.XviD.AC3-EVO 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe.Night.Comes.for.Us.2018.HDRip.XviD.AC3-EVO 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe.Proposition.2005.2160p.BluRay.3500MB.DDP5.1.x264-GalaxyRG%5BTGx%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FThe.Substance.2024.1080p.WEBRip.1600MB.DD5.1.x264-GalaxyRG%5BTGx%5D 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FUnder%20the%20Skin%20(2013)%20%5B1080p%5D 200 in 10ms (next.js: 3ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FUpgrade%20(2018)%20%5BWEBRip%5D%20%5B1080p%5D%20%5BYTS.AM%5D 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FVenganza%20(2026)%20%5B1080p%5D%20%5BWEBRip%5D%20%5Bx265%5D%20%5B10bit%5D%20%5B5.1%5D%20%5BYTS.BZ%5D 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FWicked.2024.1080p.WEBRip.10Bit.DDP5.1.x265-Asiimov 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FMovies%2FGladiator%20II%20(2024) 200 in 13ms (next.js: 3ms, application-code: 10ms)
+prisma:query UPDATE `main`.`MovieBookmark` SET `title` = ?, `status` = ?, `updatedAt` = ? WHERE (`main`.`MovieBookmark`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `tmdbId` AS `tmdbId`, `title` AS `title`, `originalTitle` AS `originalTitle`, `overview` AS `overview`, `posterPath` AS `posterPath`, `backdropPath` AS `backdropPath`, `releaseDate` AS `releaseDate`, `voteAverage` AS `voteAverage`, `genreIds` AS `genreIds`, `streamingUrl` AS `streamingUrl`, `notes` AS `notes`, `status` AS `status`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ PUT /api/movies/bookmarks/cmoy38nnl000k6ooyn9s5w0up 200 in 274ms (next.js: 55ms, application-code: 219ms)
+prisma:query SELECT `main`.`MovieBookmark`.`id`, `main`.`MovieBookmark`.`tmdbId`, `main`.`MovieBookmark`.`title`, `main`.`MovieBookmark`.`originalTitle`, `main`.`MovieBookmark`.`overview`, `main`.`MovieBookmark`.`posterPath`, `main`.`MovieBookmark`.`backdropPath`, `main`.`MovieBookmark`.`releaseDate`, `main`.`MovieBookmark`.`voteAverage`, `main`.`MovieBookmark`.`genreIds`, `main`.`MovieBookmark`.`streamingUrl`, `main`.`MovieBookmark`.`notes`, `main`.`MovieBookmark`.`status`, `main`.`MovieBookmark`.`createdAt`, `main`.`MovieBookmark`.`updatedAt` FROM `main`.`MovieBookmark` WHERE `main`.`MovieBookmark`.`status` <> ? ORDER BY `main`.`MovieBookmark`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/movies/bookmarks 200 in 10ms (next.js: 3ms, application-code: 7ms)
+prisma:query SELECT 1
+prisma:query UPDATE `main`.`MovieBookmark` SET `title` = ?, `status` = ?, `updatedAt` = ? WHERE (`main`.`MovieBookmark`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `tmdbId` AS `tmdbId`, `title` AS `title`, `originalTitle` AS `originalTitle`, `overview` AS `overview`, `posterPath` AS `posterPath`, `backdropPath` AS `backdropPath`, `releaseDate` AS `releaseDate`, `voteAverage` AS `voteAverage`, `genreIds` AS `genreIds`, `streamingUrl` AS `streamingUrl`, `notes` AS `notes`, `status` AS `status`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ PUT /api/movies/bookmarks/cmoy29v1y000f6ooyoi9g1dl0 200 in 253ms (next.js: 53ms, application-code: 200ms)
+prisma:query SELECT `main`.`MovieBookmark`.`id`, `main`.`MovieBookmark`.`tmdbId`, `main`.`MovieBookmark`.`title`, `main`.`MovieBookmark`.`originalTitle`, `main`.`MovieBookmark`.`overview`, `main`.`MovieBookmark`.`posterPath`, `main`.`MovieBookmark`.`backdropPath`, `main`.`MovieBookmark`.`releaseDate`, `main`.`MovieBookmark`.`voteAverage`, `main`.`MovieBookmark`.`genreIds`, `main`.`MovieBookmark`.`streamingUrl`, `main`.`MovieBookmark`.`notes`, `main`.`MovieBookmark`.`status`, `main`.`MovieBookmark`.`createdAt`, `main`.`MovieBookmark`.`updatedAt` FROM `main`.`MovieBookmark` WHERE `main`.`MovieBookmark`.`status` <> ? ORDER BY `main`.`MovieBookmark`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/movies/bookmarks 200 in 12ms (next.js: 3ms, application-code: 9ms)
+prisma:query UPDATE `main`.`MovieBookmark` SET `title` = ?, `status` = ?, `updatedAt` = ? WHERE (`main`.`MovieBookmark`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `tmdbId` AS `tmdbId`, `title` AS `title`, `originalTitle` AS `originalTitle`, `overview` AS `overview`, `posterPath` AS `posterPath`, `backdropPath` AS `backdropPath`, `releaseDate` AS `releaseDate`, `voteAverage` AS `voteAverage`, `genreIds` AS `genreIds`, `streamingUrl` AS `streamingUrl`, `notes` AS `notes`, `status` AS `status`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ PUT /api/movies/bookmarks/cmoy38nnl000k6ooyn9s5w0up 200 in 263ms (next.js: 55ms, application-code: 209ms)
+prisma:query SELECT `main`.`MovieBookmark`.`id`, `main`.`MovieBookmark`.`tmdbId`, `main`.`MovieBookmark`.`title`, `main`.`MovieBookmark`.`originalTitle`, `main`.`MovieBookmark`.`overview`, `main`.`MovieBookmark`.`posterPath`, `main`.`MovieBookmark`.`backdropPath`, `main`.`MovieBookmark`.`releaseDate`, `main`.`MovieBookmark`.`voteAverage`, `main`.`MovieBookmark`.`genreIds`, `main`.`MovieBookmark`.`streamingUrl`, `main`.`MovieBookmark`.`notes`, `main`.`MovieBookmark`.`status`, `main`.`MovieBookmark`.`createdAt`, `main`.`MovieBookmark`.`updatedAt` FROM `main`.`MovieBookmark` WHERE `main`.`MovieBookmark`.`status` <> ? ORDER BY `main`.`MovieBookmark`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/movies/bookmarks 200 in 8ms (next.js: 2ms, application-code: 6ms)
+prisma:query UPDATE `main`.`MovieBookmark` SET `title` = ?, `status` = ?, `updatedAt` = ? WHERE (`main`.`MovieBookmark`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `tmdbId` AS `tmdbId`, `title` AS `title`, `originalTitle` AS `originalTitle`, `overview` AS `overview`, `posterPath` AS `posterPath`, `backdropPath` AS `backdropPath`, `releaseDate` AS `releaseDate`, `voteAverage` AS `voteAverage`, `genreIds` AS `genreIds`, `streamingUrl` AS `streamingUrl`, `notes` AS `notes`, `status` AS `status`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ PUT /api/movies/bookmarks/cmoy38nnl000k6ooyn9s5w0up 200 in 540ms (next.js: 47ms, application-code: 493ms)
+prisma:query SELECT `main`.`MovieBookmark`.`id`, `main`.`MovieBookmark`.`tmdbId`, `main`.`MovieBookmark`.`title`, `main`.`MovieBookmark`.`originalTitle`, `main`.`MovieBookmark`.`overview`, `main`.`MovieBookmark`.`posterPath`, `main`.`MovieBookmark`.`backdropPath`, `main`.`MovieBookmark`.`releaseDate`, `main`.`MovieBookmark`.`voteAverage`, `main`.`MovieBookmark`.`genreIds`, `main`.`MovieBookmark`.`streamingUrl`, `main`.`MovieBookmark`.`notes`, `main`.`MovieBookmark`.`status`, `main`.`MovieBookmark`.`createdAt`, `main`.`MovieBookmark`.`updatedAt` FROM `main`.`MovieBookmark` WHERE `main`.`MovieBookmark`.`status` <> ? ORDER BY `main`.`MovieBookmark`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/movies/bookmarks 200 in 12ms (next.js: 3ms, application-code: 9ms)
+prisma:query UPDATE `main`.`MovieBookmark` SET `title` = ?, `status` = ?, `updatedAt` = ? WHERE (`main`.`MovieBookmark`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `tmdbId` AS `tmdbId`, `title` AS `title`, `originalTitle` AS `originalTitle`, `overview` AS `overview`, `posterPath` AS `posterPath`, `backdropPath` AS `backdropPath`, `releaseDate` AS `releaseDate`, `voteAverage` AS `voteAverage`, `genreIds` AS `genreIds`, `streamingUrl` AS `streamingUrl`, `notes` AS `notes`, `status` AS `status`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ PUT /api/movies/bookmarks/cmoy38nnl000k6ooyn9s5w0up 200 in 272ms (next.js: 53ms, application-code: 219ms)
+prisma:query SELECT `main`.`MovieBookmark`.`id`, `main`.`MovieBookmark`.`tmdbId`, `main`.`MovieBookmark`.`title`, `main`.`MovieBookmark`.`originalTitle`, `main`.`MovieBookmark`.`overview`, `main`.`MovieBookmark`.`posterPath`, `main`.`MovieBookmark`.`backdropPath`, `main`.`MovieBookmark`.`releaseDate`, `main`.`MovieBookmark`.`voteAverage`, `main`.`MovieBookmark`.`genreIds`, `main`.`MovieBookmark`.`streamingUrl`, `main`.`MovieBookmark`.`notes`, `main`.`MovieBookmark`.`status`, `main`.`MovieBookmark`.`createdAt`, `main`.`MovieBookmark`.`updatedAt` FROM `main`.`MovieBookmark` WHERE `main`.`MovieBookmark`.`status` <> ? ORDER BY `main`.`MovieBookmark`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/movies/bookmarks 200 in 9ms (next.js: 4ms, application-code: 6ms)
+ GET /api/media/stream?path=%2Fhome%2Fz&type=video 404 in 12ms (next.js: 5ms, application-code: 6ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`TvShowBookmark`.`id`, `main`.`TvShowBookmark`.`title`, `main`.`TvShowBookmark`.`posterPath`, `main`.`TvShowBookmark`.`streamingUrl`, `main`.`TvShowBookmark`.`notes`, `main`.`TvShowBookmark`.`status`, `main`.`TvShowBookmark`.`rating`, `main`.`TvShowBookmark`.`seasons`, `main`.`TvShowBookmark`.`currentSeason`, `main`.`TvShowBookmark`.`currentEpisode`, `main`.`TvShowBookmark`.`network`, `main`.`TvShowBookmark`.`genre`, `main`.`TvShowBookmark`.`createdAt`, `main`.`TvShowBookmark`.`updatedAt` FROM `main`.`TvShowBookmark` WHERE 1=1 ORDER BY `main`.`TvShowBookmark`.`updatedAt` DESC LIMIT ? OFFSET ?
+prisma:query SELECT `main`.`Setting`.`key`, `main`.`Setting`.`value` FROM `main`.`Setting` WHERE (`main`.`Setting`.`key` = ? AND 1=1) LIMIT ? OFFSET ?
+ GET /api/tvshows/bookmarks 200 in 42ms (next.js: 16ms, application-code: 26ms)
+ GET /api/settings?key=tvshowLibraryPaths 200 in 43ms (next.js: 23ms, application-code: 20ms)
+ GET /api/media/stream?path=%2Fmnt%2FCanal%2FTV%20Shows&type=video 200 in 15ms (next.js: 3ms, application-code: 11ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FTV%20Shows%2FFallout%20-%20Season%201 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FTV%20Shows%2FFallout%20-%20Season%202 200 in 13ms (next.js: 3ms, application-code: 9ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FTV%20Shows%2FHouse%20Of%20The%20Dragon%20Season%201 200 in 11ms (next.js: 4ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FTV%20Shows%2FHouse%20Of%20The%20Dragon%20Season%202 200 in 16ms (next.js: 9ms, application-code: 8ms)
+ GET /api/music/cover?path=%2Fmnt%2FCanal%2FTV%20Shows%2FRome%20-%20Seasons%201%20and%202 200 in 12ms (next.js: 3ms, application-code: 9ms)
+prisma:query UPDATE `main`.`TvShowBookmark` SET `title` = ?, `status` = ?, `updatedAt` = ? WHERE (`main`.`TvShowBookmark`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `title` AS `title`, `posterPath` AS `posterPath`, `streamingUrl` AS `streamingUrl`, `notes` AS `notes`, `status` AS `status`, `rating` AS `rating`, `seasons` AS `seasons`, `currentSeason` AS `currentSeason`, `currentEpisode` AS `currentEpisode`, `network` AS `network`, `genre` AS `genre`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ PUT /api/tvshows/bookmarks/cmoy4jhrg000p6ooyti61u6nv 200 in 259ms (next.js: 54ms, application-code: 205ms)
+prisma:query SELECT `main`.`TvShowBookmark`.`id`, `main`.`TvShowBookmark`.`title`, `main`.`TvShowBookmark`.`posterPath`, `main`.`TvShowBookmark`.`streamingUrl`, `main`.`TvShowBookmark`.`notes`, `main`.`TvShowBookmark`.`status`, `main`.`TvShowBookmark`.`rating`, `main`.`TvShowBookmark`.`seasons`, `main`.`TvShowBookmark`.`currentSeason`, `main`.`TvShowBookmark`.`currentEpisode`, `main`.`TvShowBookmark`.`network`, `main`.`TvShowBookmark`.`genre`, `main`.`TvShowBookmark`.`createdAt`, `main`.`TvShowBookmark`.`updatedAt` FROM `main`.`TvShowBookmark` WHERE 1=1 ORDER BY `main`.`TvShowBookmark`.`updatedAt` DESC LIMIT ? OFFSET ?
+ GET /api/tvshows/bookmarks 200 in 8ms (next.js: 2ms, application-code: 6ms)
+prisma:query UPDATE `main`.`TvShowBookmark` SET `title` = ?, `status` = ?, `updatedAt` = ? WHERE (`main`.`TvShowBookmark`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `title` AS `title`, `posterPath` AS `posterPath`, `streamingUrl` AS `streamingUrl`, `notes` AS `notes`, `status` AS `status`, `rating` AS `rating`, `seasons` AS `seasons`, `currentSeason` AS `currentSeason`, `currentEpisode` AS `currentEpisode`, `network` AS `network`, `genre` AS `genre`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ PUT /api/tvshows/bookmarks/cmoy4jhrg000p6ooyti61u6nv 200 in 371ms (next.js: 56ms, application-code: 315ms)
+ GET /api/tvshows/bookmarks 200 in 8ms (next.js: 2ms, application-code: 6ms)
+prisma:query SELECT `main`.`TvShowBookmark`.`id`, `main`.`TvShowBookmark`.`title`, `main`.`TvShowBookmark`.`posterPath`, `main`.`TvShowBookmark`.`streamingUrl`, `main`.`TvShowBookmark`.`notes`, `main`.`TvShowBookmark`.`status`, `main`.`TvShowBookmark`.`rating`, `main`.`TvShowBookmark`.`seasons`, `main`.`TvShowBookmark`.`currentSeason`, `main`.`TvShowBookmark`.`currentEpisode`, `main`.`TvShowBookmark`.`network`, `main`.`TvShowBookmark`.`genre`, `main`.`TvShowBookmark`.`createdAt`, `main`.`TvShowBookmark`.`updatedAt` FROM `main`.`TvShowBookmark` WHERE 1=1 ORDER BY `main`.`TvShowBookmark`.`updatedAt` DESC LIMIT ? OFFSET ?
+prisma:query UPDATE `main`.`TvShowBookmark` SET `title` = ?, `status` = ?, `updatedAt` = ? WHERE (`main`.`TvShowBookmark`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `title` AS `title`, `posterPath` AS `posterPath`, `streamingUrl` AS `streamingUrl`, `notes` AS `notes`, `status` AS `status`, `rating` AS `rating`, `seasons` AS `seasons`, `currentSeason` AS `currentSeason`, `currentEpisode` AS `currentEpisode`, `network` AS `network`, `genre` AS `genre`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ PUT /api/tvshows/bookmarks/cmoy4jhrg000p6ooyti61u6nv 200 in 266ms (next.js: 54ms, application-code: 212ms)
+prisma:query SELECT `main`.`TvShowBookmark`.`id`, `main`.`TvShowBookmark`.`title`, `main`.`TvShowBookmark`.`posterPath`, `main`.`TvShowBookmark`.`streamingUrl`, `main`.`TvShowBookmark`.`notes`, `main`.`TvShowBookmark`.`status`, `main`.`TvShowBookmark`.`rating`, `main`.`TvShowBookmark`.`seasons`, `main`.`TvShowBookmark`.`currentSeason`, `main`.`TvShowBookmark`.`currentEpisode`, `main`.`TvShowBookmark`.`network`, `main`.`TvShowBookmark`.`genre`, `main`.`TvShowBookmark`.`createdAt`, `main`.`TvShowBookmark`.`updatedAt` FROM `main`.`TvShowBookmark` WHERE 1=1 ORDER BY `main`.`TvShowBookmark`.`updatedAt` DESC LIMIT ? OFFSET ?
+ GET /api/tvshows/bookmarks 200 in 8ms (next.js: 2ms, application-code: 6ms)
+prisma:query UPDATE `main`.`TvShowBookmark` SET `title` = ?, `status` = ?, `updatedAt` = ? WHERE (`main`.`TvShowBookmark`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `title` AS `title`, `posterPath` AS `posterPath`, `streamingUrl` AS `streamingUrl`, `notes` AS `notes`, `status` AS `status`, `rating` AS `rating`, `seasons` AS `seasons`, `currentSeason` AS `currentSeason`, `currentEpisode` AS `currentEpisode`, `network` AS `network`, `genre` AS `genre`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ PUT /api/tvshows/bookmarks/cmoy4jhrg000p6ooyti61u6nv 200 in 450ms (next.js: 54ms, application-code: 396ms)
+prisma:query SELECT `main`.`TvShowBookmark`.`id`, `main`.`TvShowBookmark`.`title`, `main`.`TvShowBookmark`.`posterPath`, `main`.`TvShowBookmark`.`streamingUrl`, `main`.`TvShowBookmark`.`notes`, `main`.`TvShowBookmark`.`status`, `main`.`TvShowBookmark`.`rating`, `main`.`TvShowBookmark`.`seasons`, `main`.`TvShowBookmark`.`currentSeason`, `main`.`TvShowBookmark`.`currentEpisode`, `main`.`TvShowBookmark`.`network`, `main`.`TvShowBookmark`.`genre`, `main`.`TvShowBookmark`.`createdAt`, `main`.`TvShowBookmark`.`updatedAt` FROM `main`.`TvShowBookmark` WHERE 1=1 ORDER BY `main`.`TvShowBookmark`.`updatedAt` DESC LIMIT ? OFFSET ?
+ GET /api/tvshows/bookmarks 200 in 11ms (next.js: 3ms, application-code: 8ms)
+prisma:query SELECT 1
+prisma:query UPDATE `main`.`TvShowBookmark` SET `title` = ?, `status` = ?, `updatedAt` = ? WHERE (`main`.`TvShowBookmark`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `title` AS `title`, `posterPath` AS `posterPath`, `streamingUrl` AS `streamingUrl`, `notes` AS `notes`, `status` AS `status`, `rating` AS `rating`, `seasons` AS `seasons`, `currentSeason` AS `currentSeason`, `currentEpisode` AS `currentEpisode`, `network` AS `network`, `genre` AS `genre`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ PUT /api/tvshows/bookmarks/cmoy4jhrg000p6ooyti61u6nv 200 in 255ms (next.js: 53ms, application-code: 202ms)
+prisma:query SELECT `main`.`TvShowBookmark`.`id`, `main`.`TvShowBookmark`.`title`, `main`.`TvShowBookmark`.`posterPath`, `main`.`TvShowBookmark`.`streamingUrl`, `main`.`TvShowBookmark`.`notes`, `main`.`TvShowBookmark`.`status`, `main`.`TvShowBookmark`.`rating`, `main`.`TvShowBookmark`.`seasons`, `main`.`TvShowBookmark`.`currentSeason`, `main`.`TvShowBookmark`.`currentEpisode`, `main`.`TvShowBookmark`.`network`, `main`.`TvShowBookmark`.`genre`, `main`.`TvShowBookmark`.`createdAt`, `main`.`TvShowBookmark`.`updatedAt` FROM `main`.`TvShowBookmark` WHERE 1=1 ORDER BY `main`.`TvShowBookmark`.`updatedAt` DESC LIMIT ? OFFSET ?
+ GET /api/tvshows/bookmarks 200 in 8ms (next.js: 2ms, application-code: 6ms)
+prisma:query UPDATE `main`.`TvShowBookmark` SET `title` = ?, `status` = ?, `updatedAt` = ? WHERE (`main`.`TvShowBookmark`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `title` AS `title`, `posterPath` AS `posterPath`, `streamingUrl` AS `streamingUrl`, `notes` AS `notes`, `status` AS `status`, `rating` AS `rating`, `seasons` AS `seasons`, `currentSeason` AS `currentSeason`, `currentEpisode` AS `currentEpisode`, `network` AS `network`, `genre` AS `genre`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ PUT /api/tvshows/bookmarks/cmoy4jhrg000p6ooyti61u6nv 200 in 424ms (next.js: 56ms, application-code: 369ms)
+ GET /api/tvshows/bookmarks 200 in 15ms (next.js: 4ms, application-code: 11ms)
+prisma:query SELECT `main`.`TvShowBookmark`.`id`, `main`.`TvShowBookmark`.`title`, `main`.`TvShowBookmark`.`posterPath`, `main`.`TvShowBookmark`.`streamingUrl`, `main`.`TvShowBookmark`.`notes`, `main`.`TvShowBookmark`.`status`, `main`.`TvShowBookmark`.`rating`, `main`.`TvShowBookmark`.`seasons`, `main`.`TvShowBookmark`.`currentSeason`, `main`.`TvShowBookmark`.`currentEpisode`, `main`.`TvShowBookmark`.`network`, `main`.`TvShowBookmark`.`genre`, `main`.`TvShowBookmark`.`createdAt`, `main`.`TvShowBookmark`.`updatedAt` FROM `main`.`TvShowBookmark` WHERE 1=1 ORDER BY `main`.`TvShowBookmark`.`updatedAt` DESC LIMIT ? OFFSET ?
+ GET /api/media/stream?path=%2Fhome%2Fz&type=image 404 in 9ms (next.js: 3ms, application-code: 6ms)
+ GET /api/settings?key=imageLibraryPaths 200 in 12ms (next.js: 3ms, application-code: 9ms)
+prisma:query SELECT `main`.`Setting`.`key`, `main`.`Setting`.`value` FROM `main`.`Setting` WHERE (`main`.`Setting`.`key` = ? AND 1=1) LIMIT ? OFFSET ?
+ GET /api/images/bookmarks 200 in 15ms (next.js: 4ms, application-code: 12ms)
+prisma:query SELECT `main`.`MovieBookmark`.`id`, `main`.`MovieBookmark`.`tmdbId`, `main`.`MovieBookmark`.`title`, `main`.`MovieBookmark`.`originalTitle`, `main`.`MovieBookmark`.`overview`, `main`.`MovieBookmark`.`posterPath`, `main`.`MovieBookmark`.`backdropPath`, `main`.`MovieBookmark`.`releaseDate`, `main`.`MovieBookmark`.`voteAverage`, `main`.`MovieBookmark`.`genreIds`, `main`.`MovieBookmark`.`streamingUrl`, `main`.`MovieBookmark`.`notes`, `main`.`MovieBookmark`.`status`, `main`.`MovieBookmark`.`createdAt`, `main`.`MovieBookmark`.`updatedAt` FROM `main`.`MovieBookmark` WHERE `main`.`MovieBookmark`.`status` = ? ORDER BY `main`.`MovieBookmark`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos&type=image 200 in 15ms (next.js: 3ms, application-code: 11ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera&type=image 200 in 128ms (next.js: 4ms, application-code: 124ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201220_141738.jpg 200 in 8.7s (next.js: 6ms, application-code: 8.7s)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201220_142202.jpg 200 in 8.8s (next.js: 8.4s, application-code: 346ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201220_141736.jpg 200 in 8.8s (next.js: 7ms, application-code: 8.8s)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201220_142209.jpg 200 in 281ms (next.js: 8ms, application-code: 273ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201220_142155.jpg 200 in 8.8s (next.js: 8.4s, application-code: 374ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201221_125631.jpg 200 in 156ms (next.js: 6ms, application-code: 150ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201221_134914.jpg 200 in 290ms (next.js: 3ms, application-code: 287ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201221_125621.jpg 200 in 170ms (next.js: 21ms, application-code: 149ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201221_085150.jpg 200 in 208ms (next.js: 19ms, application-code: 189ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201220_142213.jpg 200 in 364ms (next.js: 14ms, application-code: 351ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201221_085155.jpg 200 in 187ms (next.js: 2ms, application-code: 184ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201220_142335.jpg 200 in 153ms (next.js: 8ms, application-code: 145ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201220_142330.jpg 200 in 402ms (next.js: 3ms, application-code: 399ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201220_142231.jpg 200 in 258ms (next.js: 4ms, application-code: 253ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201221_134831.jpg 200 in 161ms (next.js: 10ms, application-code: 152ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201221_134835.jpg 200 in 167ms (next.js: 4ms, application-code: 163ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201220_142235.jpg 200 in 93ms (next.js: 3ms, application-code: 90ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201221_135007.jpg 200 in 241ms (next.js: 6ms, application-code: 235ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201221_134953.jpg 200 in 265ms (next.js: 14ms, application-code: 251ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201221_125605.jpg 200 in 272ms (next.js: 11ms, application-code: 261ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20201221_151205.jpg 200 in 49ms (next.js: 6ms, application-code: 43ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20210124_180310.jpg 200 in 39ms (next.js: 3ms, application-code: 36ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20210126_145253.jpg 200 in 138ms (next.js: 4ms, application-code: 134ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20210126_145257.jpg 200 in 154ms (next.js: 2ms, application-code: 152ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`MovieBookmark`.`id`, `main`.`MovieBookmark`.`notes` FROM `main`.`MovieBookmark` WHERE `main`.`MovieBookmark`.`status` = ? LIMIT ? OFFSET ?
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20210126_145318.jpg 200 in 73ms (next.js: 6ms, application-code: 67ms)
+prisma:query INSERT INTO `main`.`MovieBookmark` (`id`, `title`, `genreIds`, `notes`, `status`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?) RETURNING `id` AS `id`, `tmdbId` AS `tmdbId`, `title` AS `title`, `originalTitle` AS `originalTitle`, `overview` AS `overview`, `posterPath` AS `posterPath`, `backdropPath` AS `backdropPath`, `releaseDate` AS `releaseDate`, `voteAverage` AS `voteAverage`, `genreIds` AS `genreIds`, `streamingUrl` AS `streamingUrl`, `notes` AS `notes`, `status` AS `status`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ POST /api/images/bookmarks 201 in 217ms (next.js: 3ms, application-code: 213ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20210130_123416.jpg 200 in 175ms (next.js: 12ms, application-code: 163ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20210130_123400.jpg 200 in 190ms (next.js: 10ms, application-code: 180ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20210130_123331.jpg 200 in 192ms (next.js: 6ms, application-code: 186ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20210201_133124.jpg 200 in 164ms (next.js: 2ms, application-code: 162ms)
+prisma:query SELECT `main`.`MovieBookmark`.`id`, `main`.`MovieBookmark`.`tmdbId`, `main`.`MovieBookmark`.`title`, `main`.`MovieBookmark`.`originalTitle`, `main`.`MovieBookmark`.`overview`, `main`.`MovieBookmark`.`posterPath`, `main`.`MovieBookmark`.`backdropPath`, `main`.`MovieBookmark`.`releaseDate`, `main`.`MovieBookmark`.`voteAverage`, `main`.`MovieBookmark`.`genreIds`, `main`.`MovieBookmark`.`streamingUrl`, `main`.`MovieBookmark`.`notes`, `main`.`MovieBookmark`.`status`, `main`.`MovieBookmark`.`createdAt`, `main`.`MovieBookmark`.`updatedAt` FROM `main`.`MovieBookmark` WHERE `main`.`MovieBookmark`.`status` = ? ORDER BY `main`.`MovieBookmark`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/images/bookmarks 200 in 12ms (next.js: 4ms, application-code: 8ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20210201_133129.jpg 200 in 47ms (next.js: 2ms, application-code: 45ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20210201_133137.jpg 200 in 214ms (next.js: 4ms, application-code: 211ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20210201_133203.jpg 200 in 232ms (next.js: 3ms, application-code: 229ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20210203_123905.jpg 200 in 248ms (next.js: 12ms, application-code: 236ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20210201_133225.jpg 200 in 258ms (next.js: 5ms, application-code: 254ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20210203_123923.jpg 200 in 40ms (next.js: 4ms, application-code: 36ms)
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FCamera%2FIMG_20210213_144749.jpg 200 in 57ms (next.js: 3ms, application-code: 55ms)
+ GET /api/images/bookmarks 200 in 12ms (next.js: 3ms, application-code: 9ms)
+prisma:query SELECT `main`.`MovieBookmark`.`id`, `main`.`MovieBookmark`.`tmdbId`, `main`.`MovieBookmark`.`title`, `main`.`MovieBookmark`.`originalTitle`, `main`.`MovieBookmark`.`overview`, `main`.`MovieBookmark`.`posterPath`, `main`.`MovieBookmark`.`backdropPath`, `main`.`MovieBookmark`.`releaseDate`, `main`.`MovieBookmark`.`voteAverage`, `main`.`MovieBookmark`.`genreIds`, `main`.`MovieBookmark`.`streamingUrl`, `main`.`MovieBookmark`.`notes`, `main`.`MovieBookmark`.`status`, `main`.`MovieBookmark`.`createdAt`, `main`.`MovieBookmark`.`updatedAt` FROM `main`.`MovieBookmark` WHERE `main`.`MovieBookmark`.`status` = ? ORDER BY `main`.`MovieBookmark`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/media/stream?path=%2Fmnt%2FTools%2FMis%20Fotos%2FPicture%2Fmoto%202015%2F002.jpg 200 in 17ms (next.js: 3ms, application-code: 15ms)
+prisma:query DELETE FROM `main`.`MovieBookmark` WHERE (`main`.`MovieBookmark`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `tmdbId` AS `tmdbId`, `title` AS `title`, `originalTitle` AS `originalTitle`, `overview` AS `overview`, `posterPath` AS `posterPath`, `backdropPath` AS `backdropPath`, `releaseDate` AS `releaseDate`, `voteAverage` AS `voteAverage`, `genreIds` AS `genreIds`, `streamingUrl` AS `streamingUrl`, `notes` AS `notes`, `status` AS `status`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ DELETE /api/images/bookmarks/cmoylexhg000q6ooyrbkfaman 200 in 318ms (next.js: 107ms, application-code: 211ms)
+prisma:query SELECT `main`.`MovieBookmark`.`id`, `main`.`MovieBookmark`.`tmdbId`, `main`.`MovieBookmark`.`title`, `main`.`MovieBookmark`.`originalTitle`, `main`.`MovieBookmark`.`overview`, `main`.`MovieBookmark`.`posterPath`, `main`.`MovieBookmark`.`backdropPath`, `main`.`MovieBookmark`.`releaseDate`, `main`.`MovieBookmark`.`voteAverage`, `main`.`MovieBookmark`.`genreIds`, `main`.`MovieBookmark`.`streamingUrl`, `main`.`MovieBookmark`.`notes`, `main`.`MovieBookmark`.`status`, `main`.`MovieBookmark`.`createdAt`, `main`.`MovieBookmark`.`updatedAt` FROM `main`.`MovieBookmark` WHERE `main`.`MovieBookmark`.`status` = ? ORDER BY `main`.`MovieBookmark`.`createdAt` DESC LIMIT ? OFFSET ?
+ GET /api/images/bookmarks 200 in 8ms (next.js: 2ms, application-code: 6ms)
+ GET /api/settings?key=tvshowLibraryPaths 200 in 12ms (next.js: 4ms, application-code: 8ms)
+prisma:query SELECT `main`.`Setting`.`key`, `main`.`Setting`.`value` FROM `main`.`Setting` WHERE (`main`.`Setting`.`key` = ? AND 1=1) LIMIT ? OFFSET ?
+ GET /api/media/stream?path=%2Fmnt%2FCanal%2FTV%20Shows&type=video 200 in 14ms (next.js: 5ms, application-code: 9ms)
+prisma:query SELECT `main`.`TvShowBookmark`.`id`, `main`.`TvShowBookmark`.`title`, `main`.`TvShowBookmark`.`posterPath`, `main`.`TvShowBookmark`.`streamingUrl`, `main`.`TvShowBookmark`.`notes`, `main`.`TvShowBookmark`.`status`, `main`.`TvShowBookmark`.`rating`, `main`.`TvShowBookmark`.`seasons`, `main`.`TvShowBookmark`.`currentSeason`, `main`.`TvShowBookmark`.`currentEpisode`, `main`.`TvShowBookmark`.`network`, `main`.`TvShowBookmark`.`genre`, `main`.`TvShowBookmark`.`createdAt`, `main`.`TvShowBookmark`.`updatedAt` FROM `main`.`TvShowBookmark` WHERE 1=1 ORDER BY `main`.`TvShowBookmark`.`updatedAt` DESC LIMIT ? OFFSET ?
+ GET /api/tvshows/bookmarks 200 in 8ms (next.js: 2ms, application-code: 6ms)
+prisma:query SELECT 1
+prisma:query UPDATE `main`.`TvShowBookmark` SET `title` = ?, `status` = ?, `updatedAt` = ? WHERE (`main`.`TvShowBookmark`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `title` AS `title`, `posterPath` AS `posterPath`, `streamingUrl` AS `streamingUrl`, `notes` AS `notes`, `status` AS `status`, `rating` AS `rating`, `seasons` AS `seasons`, `currentSeason` AS `currentSeason`, `currentEpisode` AS `currentEpisode`, `network` AS `network`, `genre` AS `genre`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ PUT /api/tvshows/bookmarks/cmoy4jhrg000p6ooyti61u6nv 200 in 277ms (next.js: 55ms, application-code: 221ms)
+prisma:query SELECT `main`.`TvShowBookmark`.`id`, `main`.`TvShowBookmark`.`title`, `main`.`TvShowBookmark`.`posterPath`, `main`.`TvShowBookmark`.`streamingUrl`, `main`.`TvShowBookmark`.`notes`, `main`.`TvShowBookmark`.`status`, `main`.`TvShowBookmark`.`rating`, `main`.`TvShowBookmark`.`seasons`, `main`.`TvShowBookmark`.`currentSeason`, `main`.`TvShowBookmark`.`currentEpisode`, `main`.`TvShowBookmark`.`network`, `main`.`TvShowBookmark`.`genre`, `main`.`TvShowBookmark`.`createdAt`, `main`.`TvShowBookmark`.`updatedAt` FROM `main`.`TvShowBookmark` WHERE 1=1 ORDER BY `main`.`TvShowBookmark`.`updatedAt` DESC LIMIT ? OFFSET ?
+ GET /api/tvshows/bookmarks 200 in 9ms (next.js: 3ms, application-code: 6ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`TvShowBookmark`.`id`, `main`.`TvShowBookmark`.`title`, `main`.`TvShowBookmark`.`posterPath`, `main`.`TvShowBookmark`.`streamingUrl`, `main`.`TvShowBookmark`.`notes`, `main`.`TvShowBookmark`.`status`, `main`.`TvShowBookmark`.`rating`, `main`.`TvShowBookmark`.`seasons`, `main`.`TvShowBookmark`.`currentSeason`, `main`.`TvShowBookmark`.`currentEpisode`, `main`.`TvShowBookmark`.`network`, `main`.`TvShowBookmark`.`genre`, `main`.`TvShowBookmark`.`createdAt`, `main`.`TvShowBookmark`.`updatedAt` FROM `main`.`TvShowBookmark` WHERE `main`.`TvShowBookmark`.`notes` LIKE ? LIMIT ? OFFSET ?
+prisma:query INSERT INTO `main`.`TvShowBookmark` (`id`, `title`, `posterPath`, `streamingUrl`, `notes`, `status`, `rating`, `seasons`, `currentSeason`, `currentEpisode`, `network`, `genre`, `createdAt`, `updatedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING `id` AS `id`, `title` AS `title`, `posterPath` AS `posterPath`, `streamingUrl` AS `streamingUrl`, `notes` AS `notes`, `status` AS `status`, `rating` AS `rating`, `seasons` AS `seasons`, `currentSeason` AS `currentSeason`, `currentEpisode` AS `currentEpisode`, `network` AS `network`, `genre` AS `genre`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ POST /api/tvshows/bookmarks 201 in 203ms (next.js: 4ms, application-code: 200ms)
+prisma:query SELECT `main`.`TvShowBookmark`.`id`, `main`.`TvShowBookmark`.`title`, `main`.`TvShowBookmark`.`posterPath`, `main`.`TvShowBookmark`.`streamingUrl`, `main`.`TvShowBookmark`.`notes`, `main`.`TvShowBookmark`.`status`, `main`.`TvShowBookmark`.`rating`, `main`.`TvShowBookmark`.`seasons`, `main`.`TvShowBookmark`.`currentSeason`, `main`.`TvShowBookmark`.`currentEpisode`, `main`.`TvShowBookmark`.`network`, `main`.`TvShowBookmark`.`genre`, `main`.`TvShowBookmark`.`createdAt`, `main`.`TvShowBookmark`.`updatedAt` FROM `main`.`TvShowBookmark` WHERE 1=1 ORDER BY `main`.`TvShowBookmark`.`updatedAt` DESC LIMIT ? OFFSET ?
+ GET /api/tvshows/bookmarks 200 in 14ms (next.js: 3ms, application-code: 11ms)
+prisma:query UPDATE `main`.`TvShowBookmark` SET `title` = ?, `status` = ?, `updatedAt` = ? WHERE (`main`.`TvShowBookmark`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `title` AS `title`, `posterPath` AS `posterPath`, `streamingUrl` AS `streamingUrl`, `notes` AS `notes`, `status` AS `status`, `rating` AS `rating`, `seasons` AS `seasons`, `currentSeason` AS `currentSeason`, `currentEpisode` AS `currentEpisode`, `network` AS `network`, `genre` AS `genre`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ PUT /api/tvshows/bookmarks/cmoylg2aj000r6ooywub05zmt 200 in 267ms (next.js: 54ms, application-code: 213ms)
+prisma:query SELECT `main`.`TvShowBookmark`.`id`, `main`.`TvShowBookmark`.`title`, `main`.`TvShowBookmark`.`posterPath`, `main`.`TvShowBookmark`.`streamingUrl`, `main`.`TvShowBookmark`.`notes`, `main`.`TvShowBookmark`.`status`, `main`.`TvShowBookmark`.`rating`, `main`.`TvShowBookmark`.`seasons`, `main`.`TvShowBookmark`.`currentSeason`, `main`.`TvShowBookmark`.`currentEpisode`, `main`.`TvShowBookmark`.`network`, `main`.`TvShowBookmark`.`genre`, `main`.`TvShowBookmark`.`createdAt`, `main`.`TvShowBookmark`.`updatedAt` FROM `main`.`TvShowBookmark` WHERE 1=1 ORDER BY `main`.`TvShowBookmark`.`updatedAt` DESC LIMIT ? OFFSET ?
+ GET /api/tvshows/bookmarks 200 in 11ms (next.js: 3ms, application-code: 8ms)
+✓ Compiled in 167ms
+ GET / 200 in 210ms (next.js: 7ms, application-code: 203ms)
+ GET /api/server-stats 200 in 92ms (next.js: 16ms, application-code: 76ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Setting`.`key`, `main`.`Setting`.`value` FROM `main`.`Setting` WHERE `main`.`Setting`.`key` IN (?,?,?) LIMIT ? OFFSET ?
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`Book`.`id` FROM `main`.`Book` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT 1
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`Book`.`id` FROM `main`.`Book` WHERE `main`.`Book`.`status` = ? LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT SUM(`pages`) AS `_sum$pages` FROM (SELECT `main`.`Book`.`pages` FROM `main`.`Book` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT `main`.`Book`.`author` FROM `main`.`Book` WHERE 1=1 GROUP BY `main`.`Book`.`author` LIMIT ? OFFSET ?
+ GET /api/dashboard/stats 200 in 2.1s (next.js: 5ms, application-code: 2.1s)
+ GET /api/news?cc=CA 200 in 12ms (next.js: 5ms, application-code: 7ms)
+ GET /api/media/stream?path=%2Fhome%2Fz&type=video 404 in 12ms (next.js: 5ms, application-code: 7ms)
+prisma:query SELECT `main`.`Setting`.`key`, `main`.`Setting`.`value` FROM `main`.`Setting` WHERE (`main`.`Setting`.`key` = ? AND 1=1) LIMIT ? OFFSET ?
+ GET /api/settings?key=tvshowLibraryPaths 200 in 31ms (next.js: 16ms, application-code: 15ms)
+ GET /api/tvshows/bookmarks 200 in 32ms (next.js: 22ms, application-code: 11ms)
+prisma:query SELECT `main`.`TvShowBookmark`.`id`, `main`.`TvShowBookmark`.`title`, `main`.`TvShowBookmark`.`posterPath`, `main`.`TvShowBookmark`.`streamingUrl`, `main`.`TvShowBookmark`.`notes`, `main`.`TvShowBookmark`.`status`, `main`.`TvShowBookmark`.`rating`, `main`.`TvShowBookmark`.`seasons`, `main`.`TvShowBookmark`.`currentSeason`, `main`.`TvShowBookmark`.`currentEpisode`, `main`.`TvShowBookmark`.`network`, `main`.`TvShowBookmark`.`genre`, `main`.`TvShowBookmark`.`createdAt`, `main`.`TvShowBookmark`.`updatedAt` FROM `main`.`TvShowBookmark` WHERE 1=1 ORDER BY `main`.`TvShowBookmark`.`updatedAt` DESC LIMIT ? OFFSET ?
+ GET /api/media/stream?path=%2Fmnt%2FCanal%2FTV%20Shows&type=video 200 in 12ms (next.js: 3ms, application-code: 9ms)
+prisma:query UPDATE `main`.`TvShowBookmark` SET `title` = ?, `status` = ?, `updatedAt` = ? WHERE (`main`.`TvShowBookmark`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `title` AS `title`, `posterPath` AS `posterPath`, `streamingUrl` AS `streamingUrl`, `notes` AS `notes`, `status` AS `status`, `rating` AS `rating`, `seasons` AS `seasons`, `currentSeason` AS `currentSeason`, `currentEpisode` AS `currentEpisode`, `network` AS `network`, `genre` AS `genre`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ PUT /api/tvshows/bookmarks/cmoy4jhrg000p6ooyti61u6nv 200 in 273ms (next.js: 68ms, application-code: 204ms)
+prisma:query SELECT `main`.`TvShowBookmark`.`id`, `main`.`TvShowBookmark`.`title`, `main`.`TvShowBookmark`.`posterPath`, `main`.`TvShowBookmark`.`streamingUrl`, `main`.`TvShowBookmark`.`notes`, `main`.`TvShowBookmark`.`status`, `main`.`TvShowBookmark`.`rating`, `main`.`TvShowBookmark`.`seasons`, `main`.`TvShowBookmark`.`currentSeason`, `main`.`TvShowBookmark`.`currentEpisode`, `main`.`TvShowBookmark`.`network`, `main`.`TvShowBookmark`.`genre`, `main`.`TvShowBookmark`.`createdAt`, `main`.`TvShowBookmark`.`updatedAt` FROM `main`.`TvShowBookmark` WHERE 1=1 ORDER BY `main`.`TvShowBookmark`.`updatedAt` DESC LIMIT ? OFFSET ?
+ GET /api/tvshows/bookmarks 200 in 8ms (next.js: 2ms, application-code: 6ms)
+prisma:query UPDATE `main`.`TvShowBookmark` SET `title` = ?, `status` = ?, `updatedAt` = ? WHERE (`main`.`TvShowBookmark`.`id` = ? AND 1=1) RETURNING `id` AS `id`, `title` AS `title`, `posterPath` AS `posterPath`, `streamingUrl` AS `streamingUrl`, `notes` AS `notes`, `status` AS `status`, `rating` AS `rating`, `seasons` AS `seasons`, `currentSeason` AS `currentSeason`, `currentEpisode` AS `currentEpisode`, `network` AS `network`, `genre` AS `genre`, `createdAt` AS `createdAt`, `updatedAt` AS `updatedAt`
+ PUT /api/tvshows/bookmarks/cmoy4jhrg000p6ooyti61u6nv 200 in 297ms (next.js: 69ms, application-code: 228ms)
+prisma:query SELECT `main`.`TvShowBookmark`.`id`, `main`.`TvShowBookmark`.`title`, `main`.`TvShowBookmark`.`posterPath`, `main`.`TvShowBookmark`.`streamingUrl`, `main`.`TvShowBookmark`.`notes`, `main`.`TvShowBookmark`.`status`, `main`.`TvShowBookmark`.`rating`, `main`.`TvShowBookmark`.`seasons`, `main`.`TvShowBookmark`.`currentSeason`, `main`.`TvShowBookmark`.`currentEpisode`, `main`.`TvShowBookmark`.`network`, `main`.`TvShowBookmark`.`genre`, `main`.`TvShowBookmark`.`createdAt`, `main`.`TvShowBookmark`.`updatedAt` FROM `main`.`TvShowBookmark` WHERE 1=1 ORDER BY `main`.`TvShowBookmark`.`updatedAt` DESC LIMIT ? OFFSET ?
+ GET /api/tvshows/bookmarks 200 in 8ms (next.js: 2ms, application-code: 6ms)
+ GET /api/radio/stations 200 in 89ms (next.js: 71ms, application-code: 17ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`RadioStation`.`id`, `main`.`RadioStation`.`name`, `main`.`RadioStation`.`url`, `main`.`RadioStation`.`genre`, `main`.`RadioStation`.`country`, `main`.`RadioStation`.`description`, `main`.`RadioStation`.`faviconUrl`, `main`.`RadioStation`.`isFavorite`, `main`.`RadioStation`.`order`, `main`.`RadioStation`.`createdAt`, `main`.`RadioStation`.`updatedAt` FROM `main`.`RadioStation` WHERE 1=1 ORDER BY `main`.`RadioStation`.`order` ASC, `main`.`RadioStation`.`createdAt` ASC LIMIT ? OFFSET ?
+[browser] Cannot update a component (`Sidebar`) while rendering a different component (`SleepTimer`). To locate the bad setState() call inside `SleepTimer`, follow the stack trace as described in https://react.dev/link/setstate-in-render 
+    at Set.forEach (<anonymous>)
+    at stopAllMedia (src/lib/store.ts:320:5)
+    at SleepTimer.useEffect (src/components/sections/SleepTimer.tsx:40:11)
+    at SleepTimer (src/components/sections/SleepTimer.tsx:22:49)
+  318 |       });
+  319 |     }
+> 320 |     set({
+      |     ^
+  321 |       isPlaying: false,
+  322 |       currentTrack: null,
+  323 |       musicQueue: [], (<anonymous>)
+✓ Compiled in 170ms
+ GET / 200 in 126ms (next.js: 7ms, application-code: 119ms)
+ GET /api/server-stats 200 in 64ms (next.js: 4ms, application-code: 59ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`Setting`.`key`, `main`.`Setting`.`value` FROM `main`.`Setting` WHERE `main`.`Setting`.`key` IN (?,?,?) LIMIT ? OFFSET ?
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`Book`.`id` FROM `main`.`Book` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT 1
+prisma:query SELECT COUNT(*) AS `_count$_all` FROM (SELECT `main`.`Book`.`id` FROM `main`.`Book` WHERE `main`.`Book`.`status` = ? LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT SUM(`pages`) AS `_sum$pages` FROM (SELECT `main`.`Book`.`pages` FROM `main`.`Book` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`
+prisma:query SELECT `main`.`Book`.`author` FROM `main`.`Book` WHERE 1=1 GROUP BY `main`.`Book`.`author` LIMIT ? OFFSET ?
+ GET /api/dashboard/stats 200 in 1818ms (next.js: 70ms, application-code: 1748ms)
+ GET /api/news?cc=CA 200 in 292ms (next.js: 4ms, application-code: 288ms)
+ GET /api/radio/stations 200 in 14ms (next.js: 4ms, application-code: 11ms)
+prisma:query SELECT 1
+prisma:query SELECT `main`.`RadioStation`.`id`, `main`.`RadioStation`.`name`, `main`.`RadioStation`.`url`, `main`.`RadioStation`.`genre`, `main`.`RadioStation`.`country`, `main`.`RadioStation`.`description`, `main`.`RadioStation`.`faviconUrl`, `main`.`RadioStation`.`isFavorite`, `main`.`RadioStation`.`order`, `main`.`RadioStation`.`createdAt`, `main`.`RadioStation`.`updatedAt` FROM `main`.`RadioStation` WHERE 1=1 ORDER BY `main`.`RadioStation`.`order` ASC, `main`.`RadioStation`.`createdAt` ASC LIMIT ? OFFSET ?

@@ -8,11 +8,11 @@ import { useFolderPicker } from '@/hooks/useFolderPicker';
 import { useFileActions } from '@/hooks/useFileActions';
 import { FolderPickerContent } from '@/components/shared/FolderPickerContent';
 import {
-  X, RefreshCw, Upload, FolderPlus,
+  X, RefreshCw, FolderPlus,
   ChevronRight, ChevronUp, Home as HomeIcon, Search, Plus, Edit,
   FolderOpen, Folder, MoreVertical, ExternalLink, ArrowUpDown,
   Image as ImageIcon, Music, Play, Pause, SkipBack, SkipForward,
-  Volume2, VolumeX, Repeat, Shuffle, Disc3, Heart, Film, Trash2, ArrowLeft, Dices,
+  Volume2, VolumeX, Repeat, Shuffle, Disc3, Heart, Trash2, ArrowLeft, Dices,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -316,9 +316,10 @@ export default function MusicSection() {
     return '';
   };
 
-  // Derive set of favorited local track paths
+  // Derive set of favorited local track paths (only isFavorite === true)
   const favoritePaths = new Set(
     musicBookmarks
+      .filter((bm) => bm.isFavorite)
       .map((bm) => getBmPath(bm))
       .filter(Boolean)
   );

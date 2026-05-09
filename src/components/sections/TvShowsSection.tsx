@@ -8,10 +8,10 @@ import { useFolderPicker } from '@/hooks/useFolderPicker';
 import { useFileActions } from '@/hooks/useFileActions';
 import { FolderPickerContent } from '@/components/shared/FolderPickerContent';
 import {
-  X, RefreshCw, Upload, FolderPlus,
+  X, RefreshCw, Upload,
   ChevronRight, ChevronUp, Home as HomeIcon, Search, Plus, Edit,
   FolderOpen, Folder, MoreVertical, ExternalLink, ArrowUpDown,
-  Image as ImageIcon, Film, Play, Copy, Bookmark, Star, HardDrive, Trash2,
+  Image as ImageIcon, Film, Play, Copy, Bookmark, Star, Trash2,
   AlertTriangle, Maximize, Minimize, Monitor, ArrowLeft, Heart,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -339,18 +339,43 @@ export default function TvShowsSection() {
     }
     return '';
   };
-  const favoritePaths = new Set(bookmarks.map(getBmPath).filter(Boolean));
+  // Derive set of favorited local paths (only status 'favorita')
+  const favoritePaths = new Set(
+    bookmarks
+      .filter((bm) => bm.status === 'favorita')
+      .map(getBmPath)
+      .filter(Boolean)
+  );
 
   const toggleFolderFavorite = async (folder: { name: string; path: string }, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     setFavoriteLoading(folder.path);
-    const existing = bookmarks.find((bm) => getBmPath(bm) === folder.path);
+    const existing = bookmarks.find((bm) => getBmPath(bm) === folder.path && bm.status === 'favorita');
     if (existing) {
       try {
-        const res = await fetchWithTimeout(`/api/tvshows/bookmarks/${existing.id}`, { method: 'DELETE' });
+        // Soft unfavorite: update status instead of deleting
+        const res = await fetchWithTimeout(`/api/tvshows/bookmarks/${existing.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: String(existing.title), status: '' }),
+        });
         if (res.ok) { toast.success('Serie quitada de favoritos'); loadBookmarks(); }
       } catch { toast.error('Error al quitar favorito'); }
     } else {
+      // Check if bookmark exists but was unfavorited — re-favorite it
+      const bm = bookmarks.find((bm) => getBmPath(bm) === folder.path);
+      if (bm) {
+        try {
+          const res = await fetchWithTimeout(`/api/tvshows/bookmarks/${bm.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: String(bm.title), status: 'favorita' }),
+          });
+          if (res.ok) { toast.success('Serie agregada a favoritos ❤️'); loadBookmarks(); }
+        } catch { toast.error('Error al agregar favorito'); }
+        setFavoriteLoading(null);
+        return;
+      }
       try {
         const res = await fetch('/api/tvshows/bookmarks', {
           method: 'POST',
@@ -922,7 +947,7 @@ export default function TvShowsSection() {
         <div className="space-y-4">
           {/* ── Mis Series Favoritas (local) ── */}
           {!loadingBm && (() => {
-            const localFavs = bookmarks.filter((bm) => bm.localPath || (bm.notes && String(bm.notes).startsWith('local:')));
+            const localFavs = bookmarks.filter((bm) => (bm.localPath || (bm.notes && String(bm.notes).startsWith('local:'))) && bm.status === 'favorita');
             if (localFavs.length === 0) return null;
             return (
               <div>
@@ -959,7 +984,7 @@ export default function TvShowsSection() {
                           </div>
                           <button
                             className="absolute top-2 left-2 z-10 p-1 rounded-full bg-black/40 backdrop-blur-sm transition-colors text-rose-500 hover:text-rose-600"
-                            onClick={(e) => { e.stopPropagation(); deleteLocalFavorite(String(bm.id), e); }}
+                            onClick={(e) => { e.stopPropagation(); toggleFolderFavorite({ name: String(bm.title), path: bmPath }, e); }}
                             disabled={favoriteLoading === bmPath}
                             title="Quitar de favoritos"
                           >

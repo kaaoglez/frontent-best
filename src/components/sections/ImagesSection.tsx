@@ -3,15 +3,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAppStore, type MediaItem } from '@/lib/store';
 import { toast } from 'sonner';
-import { fetchWithTimeout, formatBytes } from '@/lib/helpers';
+import { fetchWithTimeout, formatBytes, formatTimeAgo } from '@/lib/helpers';
 import { useFolderPicker } from '@/hooks/useFolderPicker';
 import { useFileActions } from '@/hooks/useFileActions';
 import { FolderPickerContent } from '@/components/shared/FolderPickerContent';
 import {
   X, RefreshCw, FolderPlus,
   ChevronRight, ChevronUp, ChevronLeft, Search, ArrowUpDown,
-  FolderOpen, Folder, Image as ImageIcon, Grid3X3, List, ZoomIn, Download,
-  HardDrive, MoreVertical, ArrowLeft,
+  FolderOpen, Folder, Image as ImageIcon, Grid3X3, List, Download,
+  MoreVertical, ArrowLeft,
   Home as HomeIcon, LayoutDashboard, Plus, Eye, Heart, Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
