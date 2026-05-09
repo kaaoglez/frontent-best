@@ -10,7 +10,7 @@ import {
   ChevronRight, ChevronUp, Home as HomeIcon, Search, Plus, Edit,
   FolderOpen, Folder, MoreVertical, ExternalLink, ArrowUpDown,
   Image as ImageIcon, Music, Play, Pause, SkipBack, SkipForward,
-  Volume2, VolumeX, Repeat, Shuffle, Disc3, Heart, Film, Trash2, ArrowLeft,
+  Volume2, VolumeX, Repeat, Shuffle, Disc3, Heart, Film, Trash2, ArrowLeft, Dices,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -74,6 +74,10 @@ export default function MusicSection() {
   const [bmNotes, setBmNotes] = useState('');
   const [bmFavorite, setBmFavorite] = useState(false);
   const [editingMusicBm, setEditingMusicBm] = useState<Record<string, unknown> | null>(null);
+  const [randomPlaylist, setRandomPlaylist] = useState<MediaItem[]>([]);
+  const [showRandomPlaylist, setShowRandomPlaylist] = useState(false);
+  const [randomLoading, setRandomLoading] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState<string | null>(null);
 
   const loadMedia = useCallback(async () => {
     try {
@@ -173,6 +177,50 @@ export default function MusicSection() {
     }
   };
 
+  const playRandom = async () => {
+    setRandomLoading(true);
+    try {
+      // Gather all library paths
+      const pathsToScan = musicLibraryPaths.length > 0 ? musicLibraryPaths : [musicCurrentPath];
+      const allTracks: MediaItem[] = [];
+
+      for (const p of pathsToScan) {
+        try {
+          const res = await fetch(`/api/music/random?path=${encodeURIComponent(p)}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.tracks) allTracks.push(...data.tracks);
+          }
+        } catch { /* skip failed paths */ }
+      }
+
+      if (allTracks.length === 0) {
+        toast.error('No se encontraron canciones');
+        setRandomLoading(false);
+        return;
+      }
+
+      // Shuffle the combined tracks
+      for (let i = allTracks.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [allTracks[i], allTracks[j]] = [allTracks[j], allTracks[i]];
+      }
+
+      setRandomPlaylist(allTracks);
+      setShowRandomPlaylist(true);
+      setMusicQueue(allTracks);
+      setCurrentTrack(allTracks[0]);
+      setIsPlaying(true);
+      setShuffleMode(true);
+      setRepeatMode('all');
+      toast.success(`🎵 ${allTracks.length} canciones mezcladas`);
+    } catch {
+      toast.error('Error al generar playlist aleatoria');
+    } finally {
+      setRandomLoading(false);
+    }
+  };
+
   const playFolder = async (folderPath: string) => {
     try {
       const res = await fetch(`/api/media/stream?path=${encodeURIComponent(folderPath)}&type=audio`);
@@ -257,6 +305,23 @@ export default function MusicSection() {
     if (coverInputRef.current) coverInputRef.current.value = '';
   };
 
+  // Extract local path from ANY format a bookmark might have
+  const getBmPath = (bm: Record<string, unknown>): string => {
+    if (bm.localPath) return String(bm.localPath);
+    if (bm.externalUrl && String(bm.externalUrl).startsWith('local:')) return String(bm.externalUrl).slice(6);
+    if (bm.notes && String(bm.notes).startsWith('local:')) {
+      try { return JSON.parse(String(bm.notes).slice(6)).path || ''; } catch { /* */ }
+    }
+    return '';
+  };
+
+  // Derive set of favorited local track paths
+  const favoritePaths = new Set(
+    musicBookmarks
+      .map((bm) => getBmPath(bm))
+      .filter(Boolean)
+  );
+
   const filteredTracks = searchQuery ? tracks.filter((t) => t.name.toLowerCase().includes(searchQuery.toLowerCase())) : tracks;
   const filteredFolders = searchQuery ? folders.filter((f) => f.name.toLowerCase().includes(searchQuery.toLowerCase())) : folders;
   const filteredMusicBms = searchQuery
@@ -279,8 +344,15 @@ export default function MusicSection() {
   const loadMusicBookmarks = useCallback(async () => {
     try {
       const res = await fetch('/api/music/bookmarks');
-      if (res.ok) { const data = await res.json(); setMusicBookmarks(data.bookmarks || []); }
-    } catch { /* ignore */ }
+      if (res.ok) {
+        const data = await res.json();
+        setMusicBookmarks(data.bookmarks || []);
+      } else {
+        console.error('loadMusicBookmarks failed:', res.status, await res.text().catch(() => ''));
+      }
+    } catch (err) {
+      console.error('loadMusicBookmarks error:', err);
+    }
   }, []);
 
   useEffect(() => { loadMusicBookmarks(); }, [loadMusicBookmarks]);
@@ -315,6 +387,64 @@ export default function MusicSection() {
       const res = await fetchWithTimeout(`/api/music/bookmarks/${id}`, { method: 'DELETE' });
       if (res.ok) { toast.success('Eliminado'); loadMusicBookmarks(); }
     } catch { toast.error('Error al eliminar'); }
+  };
+
+  // Toggle favorite for a local track (heart button)
+  const toggleTrackFavorite = async (track: MediaItem, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const trackPath = track.path;
+    setFavoriteLoading(trackPath);
+
+    const existing = musicBookmarks.find((bm) => favoritePaths.has(trackPath));
+
+    if (existing) {
+      // Already favorited → remove
+      try {
+        const res = await fetchWithTimeout(`/api/music/bookmarks/${existing.id}`, { method: 'DELETE' });
+        if (res.ok) {
+          toast.success('Quitada de favoritos');
+          loadMusicBookmarks();
+        }
+      } catch { toast.error('Error al quitar favorito'); }
+    } else {
+      // Not favorited → add
+      const trackName = track.name.replace(/\.[^.]+$/, '');
+      const albumName = trackPath.split('/').slice(-2, -1).pop() || '';
+      try {
+        const res = await fetch('/api/music/bookmarks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: trackName,
+            album: albumName,
+            localPath: trackPath,
+            localSize: track.size || null,
+            isFavorite: true,
+          }),
+        });
+        if (res.ok) {
+          toast.success('Agregada a Mis Favoritos ❤️');
+          loadMusicBookmarks();
+        } else {
+          let errorDetail = '';
+          try {
+            const data = await res.json();
+            errorDetail = data.details || data.error || '';
+            console.error('Favorite save failed:', res.status, data);
+          } catch {
+            const text = await res.text().catch(() => '');
+            errorDetail = text || `HTTP ${res.status}`;
+            console.error('Favorite save failed - non-JSON:', res.status, text);
+          }
+          if (res.status === 409) toast.info('Ya está en tus favoritos');
+          else toast.error(errorDetail || `Error al guardar (HTTP ${res.status})`);
+        }
+      } catch (err) {
+        console.error('Favorite save error:', err);
+        toast.error('Error de conexión');
+      }
+    }
+    setFavoriteLoading(null);
   };
 
   const openEditMusicDialog = (bm: Record<string, unknown>) => {
@@ -488,7 +618,7 @@ export default function MusicSection() {
         <Button variant={musicTab === 'local' ? 'default' : 'outline'} size="sm" className="h-8" onClick={() => setMusicTab('local')}>
           <Music className="h-3.5 w-3.5 mr-1" />Archivos Locales
         </Button>
-        <Button variant={musicTab === 'bookmarks' ? 'default' : 'outline'} size="sm" className="h-8" onClick={() => setMusicTab('bookmarks')}>
+        <Button variant={musicTab === 'bookmarks' ? 'default' : 'outline'} size="sm" className="h-8" onClick={() => { setMusicTab('bookmarks'); loadMusicBookmarks(); }}>
           <Heart className="h-3.5 w-3.5 mr-1" />Mis Favoritos
         </Button>
       </div>
@@ -748,7 +878,12 @@ export default function MusicSection() {
               <CardHeader className="pb-2 pt-4 px-4">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm font-medium">Canciones</CardTitle>
-                  <Button variant="ghost" size="sm" onClick={playAll}><Play className="h-3.5 w-3.5 mr-1 text-violet-500" />Reproducir Todo</Button>
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="sm" onClick={playAll}><Play className="h-3.5 w-3.5 mr-1 text-violet-500" />Reproducir Todo</Button>
+                    <Button variant="ghost" size="sm" className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400" onClick={playRandom} disabled={randomLoading}>
+                      {randomLoading ? <RefreshCw className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Dices className="h-3.5 w-3.5 mr-1" />}Random
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="p-0">
@@ -770,6 +905,14 @@ export default function MusicSection() {
                           <p className="text-xs text-muted-foreground">{formatBytes(track.size)} · {track.extension.toUpperCase()}</p>
                         </div>
                         <FileActionsMenu item={track} onRename={handleRename} onDelete={(t) => handleDelete(t.path, t.name)} />
+                        <Button
+                          variant="ghost" size="icon" className={`h-8 w-8 flex-shrink-0 ${favoritePaths.has(track.path) ? 'text-rose-500 hover:text-rose-600' : 'text-muted-foreground hover:text-rose-500'}`}
+                          onClick={(e) => toggleTrackFavorite(track, e)}
+                          disabled={favoriteLoading === track.path}
+                          title={favoritePaths.has(track.path) ? 'Quitar de Mis Favoritos' : 'Agregar a Mis Favoritos'}
+                        >
+                          <Heart className={`h-4 w-4 ${favoritePaths.has(track.path) ? 'fill-rose-500' : ''}`} />
+                        </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" onClick={(e) => { e.stopPropagation(); playTrack(track); }}>
                           <Play className="h-3.5 w-3.5" />
                         </Button>
@@ -780,69 +923,125 @@ export default function MusicSection() {
               </CardContent>
             </Card>
           )}
-        </div>
-      )}
-
-      {currentTrack && <div className="h-24" />}
-      </>)}
-
-      {musicTab === 'bookmarks' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">{musicBookmarks.length} canción{musicBookmarks.length !== 1 ? 'es' : ''} guardada{musicBookmarks.length !== 1 ? 's' : ''}</p>
-            <Button size="sm" onClick={() => setShowAddBookmark(true)}>
-              <Plus className="h-3.5 w-3.5 mr-1" />Agregar
-            </Button>
-          </div>
-          {musicBookmarks.length === 0 ? (
-            <Card className="border-dashed border-2">
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <Heart className="h-12 w-12 text-muted-foreground/30 mb-3" />
-                <p className="font-medium mb-1">Sin favoritos aún</p>
-                <p className="text-sm text-muted-foreground">Guarda canciones con links a Spotify, YouTube y más</p>
+          {/* Random Playlist */}
+          {showRandomPlaylist && randomPlaylist.length > 0 && (
+            <Card className="border-emerald-200/50 dark:border-emerald-900/30">
+              <CardHeader className="pb-2 pt-4 px-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Dices className="h-4 w-4 text-emerald-500" />
+                    Playlist Aleatoria
+                    <Badge variant="secondary" className="text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">{randomPlaylist.length} canciones</Badge>
+                  </CardTitle>
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={playRandom} disabled={randomLoading}>
+                      <RefreshCw className={`h-3.5 w-3.5 ${randomLoading ? 'animate-spin' : ''}`} />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowRandomPlaylist(false)}>
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="divide-y max-h-80 overflow-y-auto">
+                  {randomPlaylist.map((track, idx) => {
+                    const isActive = currentTrack?.path === track.path;
+                    return (
+                      <div key={track.path} className={`flex items-center gap-3 px-4 py-2 cursor-pointer transition-colors ${isActive ? 'bg-emerald-50 dark:bg-emerald-950/20' : 'hover:bg-muted/50'}`} onClick={() => { setCurrentTrack(track); setIsPlaying(true); }}>
+                        <span className="text-xs text-muted-foreground w-6 text-right flex-shrink-0 font-mono">{idx + 1}</span>
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${isActive ? 'bg-emerald-500 text-white' : 'bg-muted'}`}>
+                          {isActive && isPlaying ? <div className="flex items-end gap-[2px] h-2.5">
+                            <div className="w-[2px] bg-white rounded-full animate-pulse" style={{ height: '60%' }} />
+                            <div className="w-[2px] bg-white rounded-full animate-pulse" style={{ height: '100%', animationDelay: '0.15s' }} />
+                            <div className="w-[2px] bg-white rounded-full animate-pulse" style={{ height: '40%', animationDelay: '0.3s' }} />
+                          </div> : <Music className="h-3.5 w-3.5 text-muted-foreground" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-sm truncate ${isActive ? 'text-emerald-700 dark:text-emerald-400 font-medium' : ''}`}>{track.name.replace(/\.[^.]+$/, '')}</p>
+                          <p className="text-[10px] text-muted-foreground">{track.path.split('/').slice(-2, -1).pop()}</p>
+                        </div>
+                        {track.size > 0 && <span className="text-[10px] text-muted-foreground">{formatBytes(track.size)}</span>}
+                      </div>
+                    );
+                  })}
+                </div>
               </CardContent>
             </Card>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {musicBookmarks.map((bm) => (
-                <Card key={String(bm.id)} className="hover:shadow-md hover:-translate-y-0.5 transition-all overflow-hidden">
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                        {bm.coverUrl ? (
-                          <img src={String(bm.coverUrl)} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                        ) : (
-                          <Music className="h-5 w-5 text-violet-500" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">{String(bm.title)}</p>
-                        {bm.artist && <p className="text-sm text-muted-foreground truncate">{String(bm.artist)}</p>}
-                        {bm.album && <p className="text-xs text-muted-foreground truncate">{String(bm.album)}</p>}
-                      </div>
-                      <div className="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {bm.isFavorite && <Heart className="h-4 w-4 text-rose-500 fill-rose-500" />}
-                        {bm.externalUrl && (
-                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => window.open(String(bm.externalUrl), '_blank')}>
-                            <ExternalLink className="h-3.5 w-3.5" />
-                          </Button>
-                        )}
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditMusicDialog(bm)} title="Editar">
-                          <Edit className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:text-red-600" onClick={() => deleteMusicBookmark(String(bm.id))} title="Eliminar">
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
           )}
         </div>
       )}
       </>)}
+
+      {/* ── Mis Favoritos Tab ── */}
+      {musicTab === 'bookmarks' && (
+        <div className="space-y-6">
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+                <Heart className="h-4 w-4 text-rose-500 fill-rose-500" />Mis Canciones Favoritas
+                <Badge variant="secondary" className="text-xs">{musicBookmarks.length}</Badge>
+              </h3>
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" size="sm" className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400" onClick={() => {
+                  if (musicBookmarks.length === 0) { toast.error('No hay favoritos'); return; }
+                  const favTracks = musicBookmarks.filter((bm) => favoritePaths.has(getBmPath(bm))).map((bm) => {
+                    const p = getBmPath(bm);
+                    return { name: String(bm.title), path: p, size: 0, extension: p.split('.').pop() || 'mp3', type: 'audio' as const };
+                  });
+                  if (favTracks.length === 0) { toast.error('No hay canciones locales en favoritos'); return; }
+                  for (let i = favTracks.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [favTracks[i], favTracks[j]] = [favTracks[j], favTracks[i]]; }
+                  setMusicQueue(favTracks); setCurrentTrack(favTracks[0]); setIsPlaying(true); setShuffleMode(true); setRepeatMode('all');
+                  toast.success(`🎵 ${favTracks.length} favoritas mezcladas`);
+                }}>
+                  <Dices className="h-3.5 w-3.5 mr-1" />Random
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => setShowAddBookmark(true)}>
+                  <Plus className="h-3.5 w-3.5 mr-1" />Agregar
+                </Button>
+              </div>
+            </div>
+            {musicBookmarks.length === 0 ? (
+              <Card className="border-dashed border-2">
+                <CardContent className="flex flex-col items-center justify-center py-10">
+                  <Heart className="h-10 w-10 text-muted-foreground/30 mb-3" />
+                  <p className="font-medium mb-1">Sin favoritos aún</p>
+                  <p className="text-sm text-muted-foreground">Haz clic en el <Heart className="h-3.5 w-3.5 inline text-rose-400 fill-rose-400" /> junto a cualquier canción</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardContent className="p-0">
+                  <div className="divide-y max-h-[500px] overflow-y-auto">
+                    {musicBookmarks.map((bm) => {
+                      const trackPath = getBmPath(bm);
+                      const isActive = currentTrack?.path === trackPath;
+                      return (
+                        <div key={String(bm.id)} className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${isActive ? 'bg-violet-50 dark:bg-violet-950/20' : 'hover:bg-muted/50'}`} onClick={() => {
+                          if (!trackPath) { toast.error('Esta canción no tiene ruta local'); return; }
+                          playTrack({ name: String(bm.title), path: trackPath, size: 0, extension: trackPath.split('.').pop() || 'mp3', type: 'audio' });
+                        }}>
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isActive ? 'bg-violet-500 text-white' : 'bg-muted'}`}>
+                            {isActive && isPlaying ? <div className="flex items-end gap-[2px] h-3"><div className="w-[3px] bg-white rounded-full animate-pulse" style={{ height: '60%' }} /><div className="w-[3px] bg-white rounded-full animate-pulse" style={{ height: '100%', animationDelay: '0.15s' }} /><div className="w-[3px] bg-white rounded-full animate-pulse" style={{ height: '40%', animationDelay: '0.3s' }} /></div> : <Music className="h-4 w-4 text-muted-foreground" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-medium truncate ${isActive ? 'text-violet-700 dark:text-violet-400' : ''}`}>{String(bm.title)}</p>
+                            <p className="text-xs text-muted-foreground">{trackPath ? trackPath.split('/').slice(-2, -1).pop() : String(bm.notes || '').substring(0, 50)}</p>
+                          </div>
+                          <Heart className="h-4 w-4 text-rose-500 fill-rose-500 flex-shrink-0" />
+                          <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 text-red-500 hover:text-red-600" onClick={(e) => { e.stopPropagation(); deleteMusicBookmark(String(bm.id)); }} title="Quitar de favoritos">
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Add/Edit Bookmark Dialog */}
       <Dialog open={showAddBookmark} onOpenChange={(open) => { setShowAddBookmark(open); if (!open) { setEditingMusicBm(null); setBmTitle(''); setBmArtist(''); setBmAlbum(''); setBmExternalUrl(''); setBmCoverUrl(''); setBmNotes(''); setBmFavorite(false); } }}>
@@ -891,6 +1090,9 @@ export default function MusicSection() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {currentTrack && <div className="h-24" />}
+      </>)}
     </div>
   );
 }

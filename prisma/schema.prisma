@@ -121,8 +121,8 @@ model MusicBookmark {
   album       String?
   coverUrl    String?
   externalUrl String? // External music link (Spotify, YouTube, etc.)
-  notes       String?
-  isFavorite  Boolean  @default(false)
+  notes       String? // For local tracks: "local:{JSON with path,size}"
+  isFavorite  Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
