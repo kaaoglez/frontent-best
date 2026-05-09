@@ -5,7 +5,9 @@ export async function GET(request: NextRequest) {
   const status = request.nextUrl.searchParams.get('status');
 
   try {
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = {
+      status: { not: 'favorita_imagen' }, // Exclude image favorites (they have their own API)
+    };
     if (status) {
       where.status = status;
     }
@@ -15,7 +17,17 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' },
     });
 
-    return NextResponse.json({ bookmarks });
+    const enriched = bookmarks.map((bm) => {
+      if (bm.notes && String(bm.notes).startsWith('local:')) {
+        try {
+          const info = JSON.parse(String(bm.notes).slice(6));
+          return { ...bm, isLocal: true, localPath: info.path, localSize: info.size || null };
+        } catch { return { ...bm, isLocal: false }; }
+      }
+      return { ...bm, isLocal: false };
+    });
+
+    return NextResponse.json({ bookmarks: enriched });
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to fetch movie bookmarks', details: String(error) },

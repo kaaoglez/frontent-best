@@ -5,12 +5,14 @@ import { useAppStore, type MediaItem } from '@/lib/store';
 import { toast } from 'sonner';
 import { fetchWithTimeout, formatBytes, formatTimeAgo } from '@/lib/helpers';
 import { useFolderPicker } from '@/hooks/useFolderPicker';
+import { useFileActions } from '@/hooks/useFileActions';
+import { FolderPickerContent } from '@/components/shared/FolderPickerContent';
 import {
   X, RefreshCw, Upload, FolderPlus,
   ChevronRight, ChevronUp, Home as HomeIcon, Search, Plus, Edit,
   FolderOpen, Folder, MoreVertical, ExternalLink, ArrowUpDown,
   Image as ImageIcon, Film, Play, Copy, Bookmark, HardDrive, Trash2,
-  AlertTriangle, Maximize, Minimize, ArrowLeft,
+  AlertTriangle, Maximize, Minimize, ArrowLeft, Heart,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,8 +50,7 @@ export default function MoviesSection() {
     } catch (e) { toast.error('No se pudo guardar la carpeta'); console.error(e); }
   });
   const [coverPaths, setCoverPaths] = useState<Record<string, boolean>>({});
-  const [renameItem, setRenameItem] = useState<{ path: string; name: string } | null>(null);
-  const [renameValue, setRenameValue] = useState('');
+  const { renameItem, setRenameItem, renameValue, setRenameValue, handleRename, handleDelete, confirmRename } = useFileActions(() => loadMedia());
   const [sortAsc, setSortAsc] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -69,6 +70,7 @@ export default function MoviesSection() {
   const [bmCoverUrl, setBmCoverUrl] = useState('');
   const [bmNotes, setBmNotes] = useState('');
   const [editingMovieBm, setEditingMovieBm] = useState<Record<string, unknown> | null>(null);
+  const [favoriteLoading, setFavoriteLoading] = useState<string | null>(null);
 
   const loadMedia = useCallback(async () => {
     try {
@@ -221,54 +223,22 @@ export default function MoviesSection() {
 
   const totalSize = movies.reduce((s, m) => s + m.size, 0);
 
-  const handleDelete = async (filePath: string, name: string) => {
-    if (!confirm(`¿Eliminar "${name}"?`)) return;
-    try {
-      const res = await fetch('/api/files/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filePath }),
-      });
-      if (res.ok) {
-        toast.success(`"${name}" eliminado`);
-        loadMedia();
-      } else {
-        toast.error('Error al eliminar');
-      }
-    } catch {
-      toast.error('Error de conexión');
+  // Extract local path from bookmark notes ("local:{JSON}")
+  const getBmPath = (bm: Record<string, unknown>): string => {
+    if (bm.localPath) return String(bm.localPath);
+    if (bm.notes && String(bm.notes).startsWith('local:')) {
+      try { return JSON.parse(String(bm.notes).slice(6)).path || ''; } catch { /* */ }
     }
+    return '';
   };
 
-  const handleRename = (item: { path: string; name: string }) => {
-    setRenameItem(item);
-    setRenameValue(item.name);
-  };
-
-  const confirmRename = async () => {
-    if (!renameItem || !renameValue.trim() || renameValue.trim() === renameItem.name) {
-      setRenameItem(null);
-      return;
-    }
-    try {
-      const res = await fetch('/api/files/rename', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filePath: renameItem.path, newName: renameValue.trim() }),
-      });
-      if (res.ok) {
-        const data = await res.json().catch(() => ({ newName: renameValue.trim() }));
-        toast.success(`Renombrado a "${data.newName || renameValue.trim()}"`);
-        loadMedia();
-      } else {
-        const data = await res.json().catch(() => ({}));
-        toast.error(data.error || 'Error al renombrar');
-      }
-    } catch {
-      toast.error('Error de conexión');
-    }
-    setRenameItem(null);
-  };
+  // Derive set of favorited local movie paths (only status 'favorita')
+  const favoritePaths = new Set(
+    movieBookmarks
+      .filter((bm) => bm.status === 'favorita')
+      .map((bm) => getBmPath(bm))
+      .filter(Boolean)
+  );
 
   // ── Edit Folder (rename + cover) ──
   const handleEditFolder = async (item: { path: string; name: string }) => {
@@ -411,6 +381,40 @@ export default function MoviesSection() {
     }
   };
 
+  // Toggle favorite for a local folder (heart button on folder card)
+  const toggleFolderFavorite = async (folder: { name: string; path: string }, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setFavoriteLoading(folder.path);
+    const existing = movieBookmarks.find((bm) => getBmPath(bm) === folder.path);
+    if (existing) {
+      try {
+        // Update status to remove 'favorita' instead of deleting
+        const res = await fetchWithTimeout(`/api/movies/bookmarks/${existing.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: String(existing.title), status: '' }),
+        });
+        if (res.ok) { toast.success('Película quitada de favoritos'); loadMovieBookmarks(); }
+      } catch { toast.error('Error al quitar favorito'); }
+    } else {
+      try {
+        const res = await fetch('/api/movies/bookmarks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: folder.name,
+            notes: `local:${JSON.stringify({ path: folder.path })}`,
+            status: 'favorita',
+          }),
+        });
+        if (res.ok) { toast.success('Película agregada a favoritos ❤️'); loadMovieBookmarks(); }
+        else if (res.status === 409) toast.info('Ya está en favoritos');
+        else { const data = await res.json().catch(() => ({})); toast.error(data.error || 'Error al guardar favorito'); }
+      } catch { toast.error('Error de conexión'); }
+    }
+    setFavoriteLoading(null);
+  };
+
   // Movie name without extension for display
   const movieDisplayName = currentMovie?.name.replace(/\.[^.]+$/, '') || '';
 
@@ -496,7 +500,21 @@ export default function MoviesSection() {
             <DialogDescription>{folderPicker.pickerMode ? 'Navega y selecciona una carpeta' : 'Configura las carpetas donde buscas películas'}</DialogDescription>
           </DialogHeader>
           {folderPicker.pickerMode ? (
-            folderPicker.pickerContent
+            <FolderPickerContent
+              view={folderPicker.view}
+              disks={folderPicker.disks}
+              disksLoading={folderPicker.disksLoading}
+              directories={folderPicker.directories}
+              loading={folderPicker.loading}
+              pickerPath={folderPicker.pickerPath}
+              pickerHistory={folderPicker.pickerHistory}
+              onGoToDisks={folderPicker.goToDisks}
+              onGoBack={folderPicker.goBack}
+              onGoUp={folderPicker.goUp}
+              onNavigateTo={folderPicker.navigateTo}
+              onClose={folderPicker.closePicker}
+              onSelect={folderPicker.handleSelect}
+            />
           ) : (
           <div className="space-y-3">
             <div className="space-y-2">
@@ -662,7 +680,14 @@ export default function MoviesSection() {
                 {filteredFolders.length > 0 && (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                     {filteredFolders.sort((a, b) => a.name.localeCompare(b.name)).map((folder) => (
-                      <Card key={folder.path} className="group cursor-pointer hover:border-rose-300 dark:hover:border-rose-700 transition-all hover:shadow-md hover:-translate-y-0.5" onClick={() => navigateTo(folder.path)}>
+                      <Card key={folder.path} className="group cursor-pointer hover:border-rose-300 dark:hover:border-rose-700 transition-all hover:shadow-md hover:-translate-y-0.5 relative" onClick={() => navigateTo(folder.path)}>
+                        <button
+                          className={`absolute top-2 left-2 z-10 p-1 rounded-full bg-black/40 backdrop-blur-sm transition-colors ${favoritePaths.has(folder.path) ? 'text-rose-500' : 'text-white/60 hover:text-rose-500'}`}
+                          onClick={(e) => toggleFolderFavorite(folder, e)}
+                          disabled={favoriteLoading === folder.path}
+                        >
+                          <Heart className={`h-4 w-4 ${favoritePaths.has(folder.path) ? 'fill-rose-500' : ''}`} />
+                        </button>
                         <CardContent className="p-4 flex flex-col items-center text-center gap-2">
                           <div className="relative">
                             <div className="p-3 rounded-xl bg-rose-100 dark:bg-rose-900/30"><Folder className="h-6 w-6 text-rose-600 dark:text-rose-400" /></div>
@@ -785,6 +810,14 @@ export default function MoviesSection() {
                             </Button>
                           </div>
                         </div>
+                        {/* Heart button */}
+                        <button
+                          className={`absolute top-2 left-2 z-10 p-1 rounded-full bg-black/40 backdrop-blur-sm transition-colors ${favoritePaths.has(folder.path) ? 'text-rose-500' : 'text-white/60 hover:text-rose-500'}`}
+                          onClick={(e) => toggleFolderFavorite(folder, e)}
+                          disabled={favoriteLoading === folder.path}
+                        >
+                          <Heart className={`h-4 w-4 ${favoritePaths.has(folder.path) ? 'fill-rose-500' : ''}`} />
+                        </button>
                         {/* Badge */}
                         <div className="absolute top-2 right-2">
                           {folder.itemCount > 0 ? (
@@ -834,8 +867,8 @@ export default function MoviesSection() {
                         <span className="text-[10px] text-muted-foreground">{formatTimeAgo(movie.modifiedAt)}</span>
                       </div>
                     </CardContent>
-                    {/* Action buttons on hover */}
-                    <div className="absolute top-2 left-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    {/* Action buttons on hover (below heart) */}
+                    <div className="absolute top-10 left-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                       <Button
                         variant="secondary" size="icon" className="h-7 w-7 rounded-full shadow"
                         onClick={(e) => { e.stopPropagation(); copyDirectLink(movie); }}
@@ -864,14 +897,89 @@ export default function MoviesSection() {
       )}
 
       {activeTab === 'bookmarks' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">{movieBookmarks.length} película{movieBookmarks.length !== 1 ? 's' : ''} guardada{movieBookmarks.length !== 1 ? 's' : ''}</p>
-            <Button size="sm" onClick={() => setShowAddBookmark(true)}>
-              <Plus className="h-3.5 w-3.5 mr-1" />Agregar
-            </Button>
+        <div className="space-y-6">
+          {/* ── Mis Películas Favoritas ── */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+                <Heart className="h-4 w-4 text-rose-500 fill-rose-500" />Mis Películas Favoritas
+                <Badge variant="secondary" className="text-xs">{movieBookmarks.filter((bm) => favoritePaths.has(getBmPath(bm))).length}</Badge>
+              </h3>
+              <Button variant="ghost" size="sm" onClick={() => setShowAddBookmark(true)}>
+                <Plus className="h-3.5 w-3.5 mr-1" />Agregar
+              </Button>
+            </div>
+            {movieBookmarks.filter((bm) => favoritePaths.has(getBmPath(bm))).length === 0 ? (
+              <Card className="border-dashed border-2">
+                <CardContent className="flex flex-col items-center justify-center py-10">
+                  <Heart className="h-10 w-10 text-muted-foreground/30 mb-3" />
+                  <p className="font-medium mb-1">Sin favoritos aún</p>
+                  <p className="text-sm text-muted-foreground">Haz clic en el <Heart className="h-3.5 w-3.5 inline text-rose-400 fill-rose-400" /> junto a cualquier película</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                {movieBookmarks.filter((bm) => favoritePaths.has(getBmPath(bm))).map((bm) => {
+                  const moviePath = getBmPath(bm);
+                  return (
+                    <Card key={String(bm.id)} className="group cursor-pointer overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300" onClick={() => {
+                      if (!moviePath) { toast.error('Esta película no tiene ruta local'); return; }
+                      setActiveTab('local');
+                      navigateTo(moviePath);
+                    }}>
+                      <div className="aspect-[2/3] relative bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-950/40 dark:to-pink-950/40 overflow-hidden">
+                        <img
+                          src={`/api/music/cover?path=${encodeURIComponent(moviePath)}`}
+                          alt={String(bm.title)}
+                          className="absolute inset-0 w-full h-full object-cover"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        />
+                        <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+                          <Folder className="h-12 w-12 text-rose-300 dark:text-rose-700" />
+                          <Film className="h-6 w-6 text-rose-400 dark:text-rose-600" />
+                        </div>
+                        {/* Navigate overlay */}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center">
+                          <div className="opacity-0 group-hover:opacity-100 transition-all">
+                            <Button size="icon" className="h-10 w-10 rounded-full bg-rose-500 hover:bg-rose-600 text-white shadow-lg" onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveTab('local');
+                              navigateTo(moviePath);
+                            }}>
+                              <FolderOpen className="h-5 w-5" />
+                            </Button>
+                          </div>
+                        </div>
+                        {/* Heart button - clickable to unfavorite */}
+                        <button
+                          className="absolute top-2 left-2 z-10 p-1 rounded-full bg-black/40 backdrop-blur-sm transition-colors text-rose-500 hover:text-rose-600"
+                          onClick={(e) => { e.stopPropagation(); toggleFolderFavorite({ name: String(bm.title), path: moviePath }, e); }}
+                          disabled={favoriteLoading === moviePath}
+                          title="Quitar de favoritos"
+                        >
+                          <Heart className="h-4 w-4 fill-rose-500" />
+                        </button>
+                      </div>
+                      <CardContent className="p-3">
+                        <p className="text-sm font-medium truncate">{String(bm.title)}</p>
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">{moviePath ? moviePath.split('/').slice(-2, -1).pop() : ''}</p>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
           </div>
-          {movieBookmarks.length === 0 ? (
+
+          {/* ── Mis Películas (all bookmarks) ── */}
+          <div>
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">{movieBookmarks.filter((bm) => !getBmPath(bm)).length} película{movieBookmarks.filter((bm) => !getBmPath(bm)).length !== 1 ? 's' : ''} guardada{movieBookmarks.filter((bm) => !getBmPath(bm)).length !== 1 ? 's' : ''}</p>
+              <Button size="sm" onClick={() => setShowAddBookmark(true)}>
+                <Plus className="h-3.5 w-3.5 mr-1" />Agregar
+              </Button>
+            </div>
+          {movieBookmarks.filter((bm) => !getBmPath(bm)).length === 0 ? (
             <Card className="border-dashed border-2">
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <Bookmark className="h-12 w-12 text-muted-foreground/30 mb-3" />
@@ -881,7 +989,7 @@ export default function MoviesSection() {
             </Card>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {movieBookmarks.map((bm) => (
+              {movieBookmarks.filter((bm) => !getBmPath(bm)).map((bm) => (
                 <Card key={String(bm.id)} className="group cursor-pointer overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                   {/* Poster */}
                   <div className="aspect-[2/3] relative bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-950/40 dark:to-pink-950/40">
@@ -937,6 +1045,7 @@ export default function MoviesSection() {
             </div>
           )}
         </div>
+      </div>
       )}
       </>)}
 

@@ -1,34 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import fsp from 'fs/promises';
 import path from 'path';
 import { db } from '@/lib/db';
-
-// ── Extension sets (mirrors /api/media/stream) ──────────────────────────────
-
-const AUDIO_EXTENSIONS = new Set([
-  'mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'm4b', 'wma', 'opus', 'webm', 'aiff',
-]);
-
-const VIDEO_EXTENSIONS = new Set([
-  'mp4', 'mkv', 'avi', 'mov', 'wmv', 'flv', 'webm', 'm4v', 'mpg', 'mpeg', '3gp', 'ts',
-  'vob', 'ogv', 'divx', 'xvid', 'rm', 'rmvb', 'asf', 'f4v', 'mts', 'm2ts', 'tp', 'trp',
-]);
-
-const IMAGE_EXTENSIONS = new Set([
-  'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'ico', 'tiff', 'tif', 'avif', 'heic', 'heif',
-  'raw', 'cr2', 'nef', 'orf', 'dng',
-]);
-
-// ── In-memory cache ─────────────────────────────────────────────────────────
+import { AUDIO_EXTENSIONS, VIDEO_EXTENSIONS, IMAGE_EXTENSIONS } from '@/lib/constants';
 
 interface CacheEntry {
   data: Record<string, unknown>;
   timestamp: number;
 }
 
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-const cache: CacheEntry | null = null;
+const CACHE_TTL = 5 * 60 * 1000;
 let cacheData: CacheEntry | null = null;
 
 function getCached(): CacheEntry['data'] | null {
@@ -42,14 +24,8 @@ function setCached(data: CacheEntry['data']) {
   cacheData = { data, timestamp: Date.now() };
 }
 
-// ── Helpers ─────────────────────────────────────────────────────────────────
-
 const MAX_DEPTH = 8;
 
-/**
- * Recursively scan a directory tree asynchronously.
- * Limits depth to prevent extreme recursion on large filesystems.
- */
 async function scanDirectory(
   dir: string,
   allowedExts: Set<string>,
@@ -63,12 +39,10 @@ async function scanDirectory(
 
   try {
     const entries = await fsp.readdir(dir, { withFileTypes: true });
-
     const subScanPromises: Promise<{ totalFiles: number; totalFolders: number; totalSize: number }>[] = [];
 
     for (const entry of entries) {
       if (entry.name.startsWith('.')) continue;
-
       const fullPath = path.join(dir, entry.name);
 
       try {
@@ -92,7 +66,6 @@ async function scanDirectory(
       }
     }
 
-    // Process subdirectories in parallel batches
     if (subScanPromises.length > 0) {
       const results = await Promise.all(subScanPromises);
       for (const sub of results) {
@@ -108,9 +81,6 @@ async function scanDirectory(
   return { totalFiles, totalFolders, totalSize };
 }
 
-/**
- * Aggregate scans across multiple library paths.
- */
 async function aggregatePaths(dirs: string[], allowedExts: Set<string>) {
   let totalFiles = 0;
   let totalFolders = 0;
@@ -136,10 +106,6 @@ async function aggregatePaths(dirs: string[], allowedExts: Set<string>) {
   return { totalFiles, totalFolders, totalSize };
 }
 
-/**
- * Read a JSON-array setting from the database.
- * Returns `fallback` when the setting is missing or malformed.
- */
 async function getJsonArraySetting(key: string, fallback: string[]): Promise<string[]> {
   try {
     const row = await db.setting.findUnique({ where: { key } });
@@ -153,31 +119,25 @@ async function getJsonArraySetting(key: string, fallback: string[]): Promise<str
   return fallback;
 }
 
-// ── Route handler ───────────────────────────────────────────────────────────
-
 export async function GET() {
   try {
-    // Return cached data if still fresh
     const cached = getCached();
     if (cached) {
       return NextResponse.json(cached);
     }
 
-    // 1. Read configured library paths (or use defaults)
     const [musicPaths, moviePaths, imagePaths] = await Promise.all([
       getJsonArraySetting('musicLibraryPaths', ['/home/z']),
       getJsonArraySetting('movieLibraryPaths', ['/home/z']),
       getJsonArraySetting('imageLibraryPaths', ['/mnt/Canal', '/mnt/Tools']),
     ]);
 
-    // 2. Scan all configured paths in parallel
     const [music, movies, images] = await Promise.all([
       aggregatePaths(musicPaths, AUDIO_EXTENSIONS),
       aggregatePaths(moviePaths, VIDEO_EXTENSIONS),
       aggregatePaths(imagePaths, IMAGE_EXTENSIONS),
     ]);
 
-    // 3. Library stats from database
     const [totalBooks, booksRead, totalPagesResult, uniqueAuthorsResult] = await Promise.all([
       db.book.count(),
       db.book.count({ where: { status: 'Leído' } }),
@@ -193,8 +153,6 @@ export async function GET() {
     };
 
     const result = { library, music, movies, images };
-
-    // Cache the result
     setCached(result);
 
     return NextResponse.json(result);

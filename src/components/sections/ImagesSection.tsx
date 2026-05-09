@@ -3,14 +3,16 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAppStore, type MediaItem } from '@/lib/store';
 import { toast } from 'sonner';
-import { formatBytes } from '@/lib/helpers';
+import { fetchWithTimeout, formatBytes } from '@/lib/helpers';
 import { useFolderPicker } from '@/hooks/useFolderPicker';
+import { useFileActions } from '@/hooks/useFileActions';
+import { FolderPickerContent } from '@/components/shared/FolderPickerContent';
 import {
   X, RefreshCw, FolderPlus,
   ChevronRight, ChevronUp, ChevronLeft, Search, ArrowUpDown,
   FolderOpen, Folder, Image as ImageIcon, Grid3X3, List, ZoomIn, Download,
   HardDrive, MoreVertical, ArrowLeft,
-  Home as HomeIcon, LayoutDashboard, Plus, Eye,
+  Home as HomeIcon, LayoutDashboard, Plus, Eye, Heart, Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,10 +47,69 @@ export default function ImagesSection() {
     } catch (e) { toast.error('No se pudo guardar la carpeta'); console.error(e); }
   });
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'masonry'>('grid');
-  const [renameItem, setRenameItem] = useState<{ path: string; name: string } | null>(null);
-  const [renameValue, setRenameValue] = useState('');
+  const { renameItem, setRenameItem, renameValue, setRenameValue, handleRename, handleDelete, confirmRename } = useFileActions(() => loadImages());
   const [sortAsc, setSortAsc] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [favoriteLoading, setFavoriteLoading] = useState<string | null>(null);
+  const [favoriteImages, setFavoriteImages] = useState<Array<Record<string, unknown>>>([]);
+  const [activeTab, setActiveTab] = useState<'local' | 'bookmarks'>('local');
+
+  // ── Image Bookmarks ──
+  const getBmPath = (bm: Record<string, unknown>): string => {
+    if (bm.localPath) return String(bm.localPath);
+    if (bm.notes && String(bm.notes).startsWith('local:')) {
+      try { return JSON.parse(String(bm.notes).slice(6)).path || ''; } catch { return ''; }
+    }
+    return '';
+  };
+
+  const favoritePaths = new Set(favoriteImages.map(getBmPath).filter(Boolean));
+
+  const loadFavorites = useCallback(async () => {
+    try {
+      const res = await fetch('/api/images/bookmarks');
+      if (res.ok) {
+        const data = await res.json();
+        setFavoriteImages(data.bookmarks || []);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  useEffect(() => { loadFavorites(); }, [loadFavorites]);
+
+  const deleteFavorite = async (id: string) => {
+    try {
+      const res = await fetchWithTimeout(`/api/images/bookmarks/${id}`, { method: 'DELETE' });
+      if (res.ok) { toast.success('Imagen quitada de favoritos'); loadFavorites(); }
+    } catch { toast.error('Error al quitar favorito'); }
+  };
+
+  const toggleImageFavorite = async (img: MediaItem, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setFavoriteLoading(img.path);
+    const existing = favoriteImages.find((bm) => favoritePaths.has(img.path));
+    if (existing) {
+      try {
+        const res = await fetchWithTimeout(`/api/images/bookmarks/${existing.id}`, { method: 'DELETE' });
+        if (res.ok) { toast.success('Imagen quitada de favoritos'); loadFavorites(); }
+      } catch { toast.error('Error al quitar favorito'); }
+    } else {
+      try {
+        const res = await fetch('/api/images/bookmarks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: img.name,
+            notes: `local:${JSON.stringify({ path: img.path, size: img.size || null })}`,
+          }),
+        });
+        if (res.ok) { toast.success('Imagen agregada a favoritos ❤️'); loadFavorites(); }
+        else if (res.status === 409) toast.info('Ya está en favoritos');
+        else { const data = await res.json().catch(() => ({})); toast.error(data.error || 'Error al guardar favorito'); }
+      } catch { toast.error('Error de conexión'); }
+    }
+    setFavoriteLoading(null);
+  };
 
   const loadImages = useCallback(async () => {
     try {
@@ -126,6 +187,10 @@ export default function ImagesSection() {
 
   const filteredFolders = searchQuery ? folders.filter((f) => f.name.toLowerCase().includes(searchQuery.toLowerCase())) : folders;
   const filteredImages = searchQuery ? images.filter((i) => i.name.toLowerCase().includes(searchQuery.toLowerCase())) : images;
+  const filteredFavoriteImages = searchQuery
+    ? favoriteImages.filter((bm) => String(bm.title).toLowerCase().includes(searchQuery.toLowerCase()))
+    : favoriteImages;
+  const isSearching = searchQuery.trim().length > 0;
   const sortedFolders = sortAsc
     ? [...filteredFolders].sort((a, b) => a.name.localeCompare(b.name))
     : [...filteredFolders].sort((a, b) => b.name.localeCompare(a.name));
@@ -134,54 +199,7 @@ export default function ImagesSection() {
     : [...filteredImages].sort((a, b) => b.name.localeCompare(a.name));
   const totalSize = images.reduce((s, i) => s + i.size, 0);
 
-  const handleDelete = async (filePath: string, name: string) => {
-    if (!confirm(`¿Eliminar "${name}"?`)) return;
-    try {
-      const res = await fetch('/api/files/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filePath }),
-      });
-      if (res.ok) {
-        toast.success(`"${name}" eliminado`);
-        loadImages();
-      } else {
-        toast.error('Error al eliminar');
-      }
-    } catch {
-      toast.error('Error de conexión');
-    }
-  };
 
-  const handleRename = (item: { path: string; name: string }) => {
-    setRenameItem(item);
-    setRenameValue(item.name);
-  };
-
-  const confirmRename = async () => {
-    if (!renameItem || !renameValue.trim() || renameValue.trim() === renameItem.name) {
-      setRenameItem(null);
-      return;
-    }
-    try {
-      const res = await fetch('/api/files/rename', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filePath: renameItem.path, newName: renameValue.trim() }),
-      });
-      if (res.ok) {
-        const data = await res.json().catch(() => ({ newName: renameValue.trim() }));
-        toast.success(`Renombrado a "${data.newName || renameValue.trim()}"`);
-        loadImages();
-      } else {
-        const data = await res.json().catch(() => ({}));
-        toast.error(data.error || 'Error al renombrar');
-      }
-    } catch {
-      toast.error('Error de conexión');
-    }
-    setRenameItem(null);
-  };
 
   const currentImageIndex = currentImage ? images.findIndex((i) => i.path === currentImage.path) : -1;
   const hasPrevImage = currentImageIndex > 0;
@@ -319,6 +337,165 @@ export default function ImagesSection() {
         </div>
       </div>
 
+      {/* Tab Switcher */}
+      <div className="flex gap-2">
+        <Button variant={activeTab === 'local' ? 'default' : 'outline'} size="sm" className="h-8" onClick={() => setActiveTab('local')}>
+          <ImageIcon className="h-3.5 w-3.5 mr-1" />Imágenes Locales
+        </Button>
+        <Button variant={activeTab === 'bookmarks' ? 'default' : 'outline'} size="sm" className="h-8" onClick={() => { setActiveTab('bookmarks'); loadFavorites(); }}>
+          <Heart className="h-3.5 w-3.5 mr-1" />Mis Favoritas
+        </Button>
+      </div>
+
+      {isSearching ? (
+        /* ── Unified Search Results ── */
+        <div className="space-y-6">
+          {(filteredFolders.length > 0 || filteredImages.length > 0) && (
+            <div>
+              <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+                <ImageIcon className="h-4 w-4" />Archivos Locales
+                <Badge variant="secondary" className="text-xs">{filteredFolders.length + filteredImages.length}</Badge>
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                {filteredFolders.sort((a, b) => a.name.localeCompare(b.name)).map((f) => (
+                  <Card key={f.path} className="group cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 overflow-hidden" onClick={() => navigateTo(f.path)}>
+                    <div className="aspect-video relative bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-950/40 dark:to-pink-950/40 flex flex-col items-center justify-center gap-2 p-3">
+                      <Folder className="h-10 w-10 text-rose-500/70" />
+                      <div className="text-center">
+                        <p className="text-xs font-medium truncate w-full">{f.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{f.itemCount} imágenes</p>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+                {filteredImages.sort((a, b) => a.name.localeCompare(b.name)).map((img) => (
+                  <Card key={img.path} className="group cursor-pointer transition-all hover:shadow-lg hover:-translate-y-0.5 overflow-hidden" onClick={() => openImage(img)}>
+                    <div className="aspect-[2/3] relative bg-muted">
+                      <img src={`/api/media/stream?path=${encodeURIComponent(img.path)}`} alt={img.name} className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-105" loading="lazy" />
+                      <button
+                        className={`absolute top-2 left-2 z-10 p-1 rounded-full bg-black/40 backdrop-blur-sm transition-colors ${favoritePaths.has(img.path) ? 'text-rose-500' : 'text-white/60 hover:text-rose-500'}`}
+                        onClick={(e) => toggleImageFavorite(img, e)}
+                        disabled={favoriteLoading === img.path}
+                      >
+                        <Heart className={`h-4 w-4 ${favoritePaths.has(img.path) ? 'fill-rose-500' : ''}`} />
+                      </button>
+                    </div>
+                    <div className="p-2">
+                      <p className="text-xs font-medium truncate">{img.name}</p>
+                      <p className="text-[10px] text-muted-foreground">{formatBytes(img.size)}</p>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+          {filteredFavoriteImages.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+                <Heart className="h-4 w-4" />Mis Favoritas
+                <Badge variant="secondary" className="text-xs">{filteredFavoriteImages.length}</Badge>
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                {filteredFavoriteImages.map((bm) => {
+                  const bmPath = String(bm.localPath || getBmPath(bm));
+                  return (
+                  <Card key={String(bm.id)} className="group cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 overflow-hidden" onClick={() => { if (bm.localPath) openImage({ name: String(bm.title), path: String(bm.localPath), size: (bm.localSize as number) || 0, type: 'image' }); }}>
+                    <div className="aspect-[2/3] relative bg-muted">
+                      {bm.localPath && (
+                        <img src={`/api/media/stream?path=${encodeURIComponent(String(bm.localPath))}`} alt={String(bm.title)} className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-105" loading="lazy" />
+                      )}
+                      {/* Heart button to unfavorite */}
+                      <button
+                        className="absolute top-2 left-2 z-10 p-1 rounded-full bg-black/40 backdrop-blur-sm transition-colors text-rose-500 hover:text-rose-600"
+                        onClick={(e) => { e.stopPropagation(); if (bmPath) { const fakeImg = { name: String(bm.title), path: bmPath, size: (bm.localSize as number) || 0, type: 'image' as const }; toggleImageFavorite(fakeImg, e); } }}
+                        disabled={favoriteLoading === bmPath}
+                      >
+                        <Heart className="h-4 w-4 fill-rose-500" />
+                      </button>
+                      <div className="absolute top-2 right-2 z-10">
+                        <Button variant="ghost" size="icon" className="h-7 w-7 bg-black/40 backdrop-blur-sm text-white hover:text-red-400" onClick={(e) => { e.stopPropagation(); deleteFavorite(String(bm.id)); }}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="p-2">
+                      <p className="text-xs font-medium truncate">{String(bm.title)}</p>
+                      {bm.localSize && <p className="text-[10px] text-muted-foreground">{formatBytes(Number(bm.localSize))}</p>}
+                    </div>
+                  </Card>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          {filteredFolders.length === 0 && filteredImages.length === 0 && filteredFavoriteImages.length === 0 && (
+            <Card className="border-dashed border-2">
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <Search className="h-12 w-12 text-muted-foreground/30 mb-3" />
+                <p className="font-medium mb-1">Sin resultados</p>
+                <p className="text-sm text-muted-foreground">No se encontró &quot;{searchQuery}&quot; en archivos ni en Mis Favoritas</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      ) : activeTab === 'bookmarks' ? (
+        /* ── Bookmarks Tab ── */
+        <div>
+          {filteredFavoriteImages.length === 0 ? (
+            <Card className="border-dashed border-2">
+              <CardContent className="flex flex-col items-center justify-center py-16">
+                <Heart className="h-16 w-16 text-muted-foreground/30 mb-4" />
+                <p className="text-muted-foreground">No tienes imágenes favoritas</p>
+                <p className="text-xs text-muted-foreground mt-1">Haz clic en el corazón ❤️ en cualquier imagen para guardarla aquí</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+                <span>{filteredFavoriteImages.length} imagen{filteredFavoriteImages.length !== 1 ? 'es' : ''} favorita{filteredFavoriteImages.length !== 1 ? 's' : ''}</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                {filteredFavoriteImages.map((bm) => {
+                  const bmPath = String(bm.localPath || getBmPath(bm));
+                  const isFav = favoritePaths.has(bmPath);
+                  return (
+                  <Card key={String(bm.id)} className="group cursor-pointer transition-all hover:shadow-lg hover:-translate-y-0.5 overflow-hidden" onClick={() => { if (bm.localPath) openImage({ name: String(bm.title), path: String(bm.localPath), size: (bm.localSize as number) || 0, type: 'image' }); }}>
+                    <div className="aspect-[2/3] relative bg-muted">
+                      {bm.localPath && (
+                        <img src={`/api/media/stream?path=${encodeURIComponent(String(bm.localPath))}`} alt={String(bm.title)} className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-105" loading="lazy" />
+                      )}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                        <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      {/* Heart button to unfavorite */}
+                      <button
+                        className="absolute top-2 left-2 z-10 p-1 rounded-full bg-black/40 backdrop-blur-sm transition-colors text-rose-500 hover:text-rose-600"
+                        onClick={(e) => { e.stopPropagation(); if (bmPath) { const fakeImg = { name: String(bm.title), path: bmPath, size: (bm.localSize as number) || 0, type: 'image' as const }; toggleImageFavorite(fakeImg, e); } }}
+                        disabled={favoriteLoading === bmPath}
+                      >
+                        <Heart className="h-4 w-4 fill-rose-500" />
+                      </button>
+                      <div className="absolute top-2 right-2 z-10">
+                        <Button variant="ghost" size="icon" className="h-7 w-7 bg-black/40 backdrop-blur-sm text-white hover:text-red-400" onClick={(e) => { e.stopPropagation(); deleteFavorite(String(bm.id)); }}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="p-2">
+                      <p className="text-xs font-medium truncate">{String(bm.title)}</p>
+                      {bm.localSize && <p className="text-[10px] text-muted-foreground">{formatBytes(Number(bm.localSize))}</p>}
+                    </div>
+                  </Card>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
+      ) : null}
+
+      {!isSearching && activeTab === 'local' && (
+      <>
       {/* Settings Dialog */}
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
         <DialogContent>
@@ -327,7 +504,21 @@ export default function ImagesSection() {
             <DialogDescription>{folderPicker.pickerMode ? 'Navega y selecciona una carpeta' : 'Configura las carpetas donde buscas imágenes'}</DialogDescription>
           </DialogHeader>
           {folderPicker.pickerMode ? (
-            folderPicker.pickerContent
+            <FolderPickerContent
+              view={folderPicker.view}
+              disks={folderPicker.disks}
+              disksLoading={folderPicker.disksLoading}
+              directories={folderPicker.directories}
+              loading={folderPicker.loading}
+              pickerPath={folderPicker.pickerPath}
+              pickerHistory={folderPicker.pickerHistory}
+              onGoToDisks={folderPicker.goToDisks}
+              onGoBack={folderPicker.goBack}
+              onGoUp={folderPicker.goUp}
+              onNavigateTo={folderPicker.navigateTo}
+              onClose={folderPicker.closePicker}
+              onSelect={folderPicker.handleSelect}
+            />
           ) : (
           <div className="space-y-3">
             <div className="space-y-2">
@@ -446,6 +637,14 @@ export default function ImagesSection() {
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
                       <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
+                    {/* Heart button */}
+                    <button
+                      className={`absolute top-2 left-2 z-10 p-1 rounded-full bg-black/40 backdrop-blur-sm transition-colors ${favoritePaths.has(img.path) ? 'text-rose-500' : 'text-white/60 hover:text-rose-500'}`}
+                      onClick={(e) => toggleImageFavorite(img, e)}
+                      disabled={favoriteLoading === img.path}
+                    >
+                      <Heart className={`h-4 w-4 ${favoritePaths.has(img.path) ? 'fill-rose-500' : ''}`} />
+                    </button>
                     {/* Actions menu */}
                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                       <FileActionsMenu item={img} onRename={handleRename} onDelete={(i) => handleDelete(i.path, i.name)} />
@@ -475,6 +674,14 @@ export default function ImagesSection() {
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
                       <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
+                    {/* Heart button */}
+                    <button
+                      className={`absolute top-2 left-2 z-10 p-1 rounded-full bg-black/40 backdrop-blur-sm transition-colors ${favoritePaths.has(img.path) ? 'text-rose-500' : 'text-white/60 hover:text-rose-500'}`}
+                      onClick={(e) => toggleImageFavorite(img, e)}
+                      disabled={favoriteLoading === img.path}
+                    >
+                      <Heart className={`h-4 w-4 ${favoritePaths.has(img.path) ? 'fill-rose-500' : ''}`} />
+                    </button>
                     {/* Actions menu */}
                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                       <FileActionsMenu item={img} onRename={handleRename} onDelete={(i) => handleDelete(i.path, i.name)} />
@@ -501,6 +708,13 @@ export default function ImagesSection() {
                       </div>
                       <p className="text-xs text-muted-foreground flex-shrink-0">{formatBytes(img.size)}</p>
                       <p className="text-xs text-muted-foreground flex-shrink-0 w-20 text-right">{formatTimeAgo(img.modifiedAt)}</p>
+                      <button
+                        className={`p-1 rounded-full transition-colors ${favoritePaths.has(img.path) ? 'text-rose-500' : 'text-muted-foreground/50 hover:text-rose-500'}`}
+                        onClick={(e) => toggleImageFavorite(img, e)}
+                        disabled={favoriteLoading === img.path}
+                      >
+                        <Heart className={`h-4 w-4 ${favoritePaths.has(img.path) ? 'fill-rose-500' : ''}`} />
+                      </button>
                       <FileActionsMenu item={img} onRename={handleRename} onDelete={(i) => handleDelete(i.path, i.name)} />
                       <Button variant="ghost" size="icon" className="h-7 w-7 flex-shrink-0" onClick={(e) => { e.stopPropagation(); openImage(img); }}>
                         <Eye className="h-3.5 w-3.5" />
@@ -512,6 +726,8 @@ export default function ImagesSection() {
             </Card>
           )}
         </div>
+      )}
+      </>
       )}
     </div>
   );

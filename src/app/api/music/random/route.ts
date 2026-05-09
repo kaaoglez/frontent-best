@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-
-const AUDIO_EXTENSIONS = new Set([
-  'mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'm4b', 'wma', 'opus', 'webm', 'aiff',
-]);
+import { AUDIO_EXTENSIONS } from '@/lib/constants';
 
 function scanRecursive(dirPath: string, maxTracks: number): Array<{ name: string; path: string; size: number; extension: string; type: string }> {
   const tracks: Array<{ name: string; path: string; size: number; extension: string; type: string }> = [];
@@ -64,7 +61,6 @@ export async function GET(request: NextRequest) {
     const MAX_TRACKS = 200;
     const tracks = scanRecursive(normalized, MAX_TRACKS);
 
-    // Shuffle using Fisher-Yates
     for (let i = tracks.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [tracks[i], tracks[j]] = [tracks[j], tracks[i]];

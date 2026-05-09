@@ -5,12 +5,14 @@ import { useAppStore, type MediaItem } from '@/lib/store';
 import { toast } from 'sonner';
 import { fetchWithTimeout, formatBytes, formatTimeAgo } from '@/lib/helpers';
 import { useFolderPicker } from '@/hooks/useFolderPicker';
+import { useFileActions } from '@/hooks/useFileActions';
+import { FolderPickerContent } from '@/components/shared/FolderPickerContent';
 import {
   X, RefreshCw, Upload, FolderPlus,
   ChevronRight, ChevronUp, Home as HomeIcon, Search, Plus, Edit,
   FolderOpen, Folder, MoreVertical, ExternalLink, ArrowUpDown,
   Image as ImageIcon, Film, Play, Copy, Bookmark, Star, HardDrive, Trash2,
-  AlertTriangle, Maximize, Minimize, Monitor, ArrowLeft,
+  AlertTriangle, Maximize, Minimize, Monitor, ArrowLeft, Heart,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -76,8 +78,7 @@ export default function TvShowsSection() {
   });
   const [coverPaths, setCoverPaths] = useState<Record<string, boolean>>({});
   const [sortAsc, setSortAsc] = useState(true);
-  const [renameItem, setRenameItem] = useState<{ path: string; name: string } | null>(null);
-  const [renameValue, setRenameValue] = useState('');
+  const { renameItem, setRenameItem, renameValue, setRenameValue, handleRename, handleDelete, confirmRename } = useFileActions(() => loadMedia());
   // Edit folder state
   const [editFolder, setEditFolder] = useState<{ path: string; name: string } | null>(null);
   const [editFolderName, setEditFolderName] = useState('');
@@ -110,6 +111,7 @@ export default function TvShowsSection() {
   const [bmCurrentEpisode, setBmCurrentEpisode] = useState('');
   const [bmNetwork, setBmNetwork] = useState('');
   const [bmGenre, setBmGenre] = useState('');
+  const [favoriteLoading, setFavoriteLoading] = useState<string | null>(null);
 
   // ── File browser ──
   const loadMedia = useCallback(async () => {
@@ -193,54 +195,7 @@ export default function TvShowsSection() {
     if (parent !== tvshowCurrentPath) navigateTo(parent);
   };
 
-  const handleDelete = async (filePath: string, name: string) => {
-    if (!confirm(`¿Eliminar "${name}"?`)) return;
-    try {
-      const res = await fetch('/api/files/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filePath }),
-      });
-      if (res.ok) {
-        toast.success(`"${name}" eliminado`);
-        loadMedia();
-      } else {
-        toast.error('Error al eliminar');
-      }
-    } catch {
-      toast.error('Error de conexión');
-    }
-  };
 
-  const handleRename = (item: { path: string; name: string }) => {
-    setRenameItem(item);
-    setRenameValue(item.name);
-  };
-
-  const confirmRename = async () => {
-    if (!renameItem || !renameValue.trim() || renameValue.trim() === renameItem.name) {
-      setRenameItem(null);
-      return;
-    }
-    try {
-      const res = await fetch('/api/files/rename', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filePath: renameItem.path, newName: renameValue.trim() }),
-      });
-      if (res.ok) {
-        const data = await res.json().catch(() => ({ newName: renameValue.trim() }));
-        toast.success(`Renombrado a "${data.newName || renameValue.trim()}"`);
-        loadMedia();
-      } else {
-        const data = await res.json().catch(() => ({}));
-        toast.error(data.error || 'Error al renombrar');
-      }
-    } catch {
-      toast.error('Error de conexión');
-    }
-    setRenameItem(null);
-  };
 
   // ── Edit Folder (rename + cover) ──
   const handleEditFolder = async (item: { path: string; name: string }) => {
@@ -376,7 +331,54 @@ export default function TvShowsSection() {
 
   useEffect(() => { loadBookmarks(); }, [loadBookmarks]);
 
+  // ── Favorites helpers ──
+  const getBmPath = (bm: Record<string, unknown>): string => {
+    if (bm.localPath) return String(bm.localPath);
+    if (bm.notes && String(bm.notes).startsWith('local:')) {
+      try { return JSON.parse(String(bm.notes).slice(6)).path; } catch { return ''; }
+    }
+    return '';
+  };
+  const favoritePaths = new Set(bookmarks.map(getBmPath).filter(Boolean));
+
+  const toggleFolderFavorite = async (folder: { name: string; path: string }, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setFavoriteLoading(folder.path);
+    const existing = bookmarks.find((bm) => getBmPath(bm) === folder.path);
+    if (existing) {
+      try {
+        const res = await fetchWithTimeout(`/api/tvshows/bookmarks/${existing.id}`, { method: 'DELETE' });
+        if (res.ok) { toast.success('Serie quitada de favoritos'); loadBookmarks(); }
+      } catch { toast.error('Error al quitar favorito'); }
+    } else {
+      try {
+        const res = await fetch('/api/tvshows/bookmarks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: folder.name,
+            notes: `local:${JSON.stringify({ path: folder.path })}`,
+            status: 'favorita',
+          }),
+        });
+        if (res.ok) { toast.success('Serie agregada a favoritos ❤️'); loadBookmarks(); }
+        else if (res.status === 409) toast.info('Ya está en favoritos');
+        else { const data = await res.json().catch(() => ({})); toast.error(data.error || 'Error al guardar favorito'); }
+      } catch { toast.error('Error de conexión'); }
+    }
+    setFavoriteLoading(null);
+  };
+
+  const deleteLocalFavorite = async (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    try {
+      const res = await fetchWithTimeout(`/api/tvshows/bookmarks/${id}`, { method: 'DELETE' });
+      if (res.ok) { toast.success('Serie quitada de favoritos'); loadBookmarks(); }
+    } catch { toast.error('Error al quitar favorito'); }
+  };
+
   const filteredBookmarks = bookmarks
+    .filter((bm) => !getBmPath(bm)) // Exclude local favorites (shown separately above)
     .filter((bm) => statusFilter === 'all' || String(bm.status) === statusFilter)
     .filter((bm) => !tvSearchQuery || String(bm.title).toLowerCase().includes(tvSearchQuery.toLowerCase()) || String(bm.genre || '').toLowerCase().includes(tvSearchQuery.toLowerCase()) || String(bm.network || '').toLowerCase().includes(tvSearchQuery.toLowerCase()));
 
@@ -525,7 +527,21 @@ export default function TvShowsSection() {
             <DialogDescription>{folderPicker.pickerMode ? 'Navega y selecciona una carpeta' : 'Configura las carpetas donde buscas series'}</DialogDescription>
           </DialogHeader>
           {folderPicker.pickerMode ? (
-            folderPicker.pickerContent
+            <FolderPickerContent
+              view={folderPicker.view}
+              disks={folderPicker.disks}
+              disksLoading={folderPicker.disksLoading}
+              directories={folderPicker.directories}
+              loading={folderPicker.loading}
+              pickerPath={folderPicker.pickerPath}
+              pickerHistory={folderPicker.pickerHistory}
+              onGoToDisks={folderPicker.goToDisks}
+              onGoBack={folderPicker.goBack}
+              onGoUp={folderPicker.goUp}
+              onNavigateTo={folderPicker.navigateTo}
+              onClose={folderPicker.closePicker}
+              onSelect={folderPicker.handleSelect}
+            />
           ) : (
           <div className="space-y-3">
             <div className="space-y-2">
@@ -691,7 +707,14 @@ export default function TvShowsSection() {
                 {filteredFolders.length > 0 && (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                     {filteredFolders.sort((a, b) => a.name.localeCompare(b.name)).map((folder) => (
-                      <Card key={folder.path} className="group cursor-pointer hover:border-sky-300 dark:hover:border-sky-700 transition-all hover:shadow-md hover:-translate-y-0.5" onClick={() => navigateTo(folder.path)}>
+                      <Card key={folder.path} className="group cursor-pointer hover:border-sky-300 dark:hover:border-sky-700 transition-all hover:shadow-md hover:-translate-y-0.5 relative" onClick={() => navigateTo(folder.path)}>
+                        <button
+                          className={`absolute top-2 left-2 z-10 p-1 rounded-full bg-black/40 backdrop-blur-sm transition-colors ${favoritePaths.has(folder.path) ? 'text-rose-500' : 'text-white/60 hover:text-rose-500'}`}
+                          onClick={(e) => toggleFolderFavorite(folder, e)}
+                          disabled={favoriteLoading === folder.path}
+                        >
+                          <Heart className={`h-4 w-4 ${favoritePaths.has(folder.path) ? 'fill-rose-500' : ''}`} />
+                        </button>
                         <CardContent className="p-4 flex flex-col items-center text-center gap-2">
                           <div className="relative">
                             <div className="p-3 rounded-xl bg-sky-100 dark:bg-sky-900/30"><Folder className="h-6 w-6 text-sky-600 dark:text-sky-400" /></div>
@@ -817,6 +840,14 @@ export default function TvShowsSection() {
                               </Button>
                             </div>
                           </div>
+                          {/* Heart button */}
+                          <button
+                            className={`absolute top-2 left-2 z-10 p-1 rounded-full bg-black/40 backdrop-blur-sm transition-colors ${favoritePaths.has(folder.path) ? 'text-rose-500' : 'text-white/60 hover:text-rose-500'}`}
+                            onClick={(e) => toggleFolderFavorite(folder, e)}
+                            disabled={favoriteLoading === folder.path}
+                          >
+                            <Heart className={`h-4 w-4 ${favoritePaths.has(folder.path) ? 'fill-rose-500' : ''}`} />
+                          </button>
                           {/* Badge */}
                           <div className="absolute top-2 right-2">
                             {folder.itemCount > 0 ? (
@@ -889,6 +920,63 @@ export default function TvShowsSection() {
 
       {activeTab === 'bookmarks' && (
         <div className="space-y-4">
+          {/* ── Mis Series Favoritas (local) ── */}
+          {!loadingBm && (() => {
+            const localFavs = bookmarks.filter((bm) => bm.localPath || (bm.notes && String(bm.notes).startsWith('local:')));
+            if (localFavs.length === 0) return null;
+            return (
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+                  <Heart className="h-4 w-4 text-rose-500 fill-rose-500" />Mis Series Favoritas
+                  <Badge variant="secondary" className="text-xs">{localFavs.length}</Badge>
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {localFavs.map((bm) => {
+                    const bmPath = getBmPath(bm);
+                    return (
+                      <Card key={String(bm.id)} className="group cursor-pointer overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative">
+                        <div className="relative aspect-[2/3] bg-gradient-to-br from-sky-100 to-blue-100 dark:from-sky-950/40 dark:to-blue-950/40 overflow-hidden" onClick={() => { if (bmPath) { setActiveTab('local'); navigateTo(bmPath); } }}>
+                          <img
+                            src={`/api/music/cover?path=${encodeURIComponent(bmPath)}`}
+                            alt={String(bm.title)}
+                            className="absolute inset-0 w-full h-full object-cover"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                          />
+                          <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+                            <Folder className="h-12 w-12 text-sky-300 dark:text-sky-700" />
+                            <Monitor className="h-6 w-6 text-sky-400 dark:text-sky-600" />
+                          </div>
+                          {/* Navigate overlay */}
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center">
+                            <div className="opacity-0 group-hover:opacity-100 transition-all">
+                              <Button size="icon" className="h-10 w-10 rounded-full bg-sky-500 hover:bg-sky-600 text-white shadow-lg" onClick={(e) => {
+                                e.stopPropagation();
+                                if (bmPath) { setActiveTab('local'); navigateTo(bmPath); }
+                              }}>
+                                <FolderOpen className="h-5 w-5" />
+                              </Button>
+                            </div>
+                          </div>
+                          <button
+                            className="absolute top-2 left-2 z-10 p-1 rounded-full bg-black/40 backdrop-blur-sm transition-colors text-rose-500 hover:text-rose-600"
+                            onClick={(e) => { e.stopPropagation(); deleteLocalFavorite(String(bm.id), e); }}
+                            disabled={favoriteLoading === bmPath}
+                            title="Quitar de favoritos"
+                          >
+                            <Heart className="h-4 w-4 fill-rose-500" />
+                          </button>
+                        </div>
+                        <CardContent className="p-3">
+                          <h4 className="text-sm font-medium truncate">{String(bm.title)}</h4>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Status filter */}
           <div className="flex flex-wrap gap-2">
             {tvShowStatuses.map((f) => (

@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { db } from '@/lib/db';
 
-const db = new PrismaClient();
-
-// GET /api/settings?key=musicLibraryPaths
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const key = searchParams.get('key');
@@ -25,7 +22,6 @@ export async function GET(request: Request) {
   }
 }
 
-// POST /api/settings  body: { key: string, value: string }
 export async function POST(request: Request) {
   try {
     const body = await request.json();

@@ -5,6 +5,8 @@ import { useAppStore, type MediaItem } from '@/lib/store';
 import { toast } from 'sonner';
 import { fetchWithTimeout, formatBytes, bookStatusColor, bookStatusLabel } from '@/lib/helpers';
 import { useFolderPicker } from '@/hooks/useFolderPicker';
+import { useFileActions } from '@/hooks/useFileActions';
+import { FolderPickerContent } from '@/components/shared/FolderPickerContent';
 import {
   X, RefreshCw, Upload, Download, FolderPlus,
   ChevronRight, ChevronLeft, ChevronUp, Search, Plus, Edit, BookOpen,
@@ -281,8 +283,7 @@ export default function LibrarySection() {
   };
 
   const [showCoverUpload, setShowCoverUpload] = useState(false);
-  const [renameItem, setRenameItem] = useState<{ path: string; name: string } | null>(null);
-  const [renameValue, setRenameValue] = useState('');
+  const { renameItem, setRenameItem, renameValue, setRenameValue, handleRename, handleDelete, confirmRename } = useFileActions(() => loadBooks());
   const coverInputRef = useRef<HTMLInputElement>(null);
   const [editFolder, setEditFolder] = useState<{ path: string; name: string } | null>(null);
   const [editFolderName, setEditFolderName] = useState('');
@@ -290,54 +291,7 @@ export default function LibrarySection() {
   const [editCoverPreview, setEditCoverPreview] = useState<string | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
 
-  const handleDelete = async (filePath: string, name: string) => {
-    if (!confirm(`¿Eliminar "${name}"?`)) return;
-    try {
-      const res = await fetch('/api/files/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filePath }),
-      });
-      if (res.ok) {
-        toast.success(`"${name}" eliminado`);
-        loadBooks();
-      } else {
-        toast.error('Error al eliminar');
-      }
-    } catch {
-      toast.error('Error de conexión');
-    }
-  };
 
-  const handleRename = (item: { path: string; name: string }) => {
-    setRenameItem(item);
-    setRenameValue(item.name);
-  };
-
-  const confirmRename = async () => {
-    if (!renameItem || !renameValue.trim() || renameValue.trim() === renameItem.name) {
-      setRenameItem(null);
-      return;
-    }
-    try {
-      const res = await fetch('/api/files/rename', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ filePath: renameItem.path, newName: renameValue.trim() }),
-      });
-      if (res.ok) {
-        const data = await res.json().catch(() => ({ newName: renameValue.trim() }));
-        toast.success(`Renombrado a "${data.newName || renameValue.trim()}"`);
-        loadBooks();
-      } else {
-        const data = await res.json().catch(() => ({}));
-        toast.error(data.error || 'Error al renombrar');
-      }
-    } catch {
-      toast.error('Error de conexión');
-    }
-    setRenameItem(null);
-  };
 
   const handleEditFolder = async (item: { path: string; name: string }) => {
     setEditFolder(item);
@@ -946,7 +900,21 @@ export default function LibrarySection() {
             <DialogDescription>{folderPicker.pickerMode ? 'Navega y selecciona una carpeta' : 'Configura las carpetas donde buscar libros'}</DialogDescription>
           </DialogHeader>
           {folderPicker.pickerMode ? (
-            folderPicker.pickerContent
+            <FolderPickerContent
+              view={folderPicker.view}
+              disks={folderPicker.disks}
+              disksLoading={folderPicker.disksLoading}
+              directories={folderPicker.directories}
+              loading={folderPicker.loading}
+              pickerPath={folderPicker.pickerPath}
+              pickerHistory={folderPicker.pickerHistory}
+              onGoToDisks={folderPicker.goToDisks}
+              onGoBack={folderPicker.goBack}
+              onGoUp={folderPicker.goUp}
+              onNavigateTo={folderPicker.navigateTo}
+              onClose={folderPicker.closePicker}
+              onSelect={folderPicker.handleSelect}
+            />
           ) : (
           <div className="space-y-3">
             <div className="space-y-2">
