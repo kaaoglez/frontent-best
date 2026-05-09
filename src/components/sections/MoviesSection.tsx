@@ -385,7 +385,7 @@ export default function MoviesSection() {
   const toggleFolderFavorite = async (folder: { name: string; path: string }, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     setFavoriteLoading(folder.path);
-    const existing = movieBookmarks.find((bm) => getBmPath(bm) === folder.path);
+    const existing = movieBookmarks.find((bm) => getBmPath(bm) === folder.path && bm.status === 'favorita');
     if (existing) {
       try {
         // Update status to remove 'favorita' instead of deleting
@@ -397,6 +397,20 @@ export default function MoviesSection() {
         if (res.ok) { toast.success('Película quitada de favoritos'); loadMovieBookmarks(); }
       } catch { toast.error('Error al quitar favorito'); }
     } else {
+      // Check if bookmark exists but was unfavorited — re-favorite it
+      const bm = movieBookmarks.find((bm) => getBmPath(bm) === folder.path);
+      if (bm) {
+        try {
+          const res = await fetchWithTimeout(`/api/movies/bookmarks/${bm.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: String(bm.title), status: 'favorita' }),
+          });
+          if (res.ok) { toast.success('Película agregada a favoritos ❤️'); loadMovieBookmarks(); }
+        } catch { toast.error('Error al agregar favorito'); }
+        setFavoriteLoading(null);
+        return;
+      }
       try {
         const res = await fetch('/api/movies/bookmarks', {
           method: 'POST',
