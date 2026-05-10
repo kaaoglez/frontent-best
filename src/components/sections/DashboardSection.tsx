@@ -5,7 +5,7 @@ import {
   Clock, Cpu, MemoryStick, HardDrive, Activity,
   Library as LibraryIcon, Music2, FilmIcon,
   Image as ImageIcon, Calendar, Newspaper, Wifi,
-  Monitor, Server as ServerIcon,
+  Monitor, Server as ServerIcon, Cloud,
 } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
 import { formatBytes, formatUptime } from '@/lib/helpers';
@@ -178,6 +178,10 @@ export default function DashboardSection() {
         {/* Weather */}
         <Card className="border-sky-200/50 bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-950/20 dark:to-blue-950/20 md:col-span-2">
           <CardContent className="p-4 md:p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Cloud className="h-4 w-4 text-sky-500" />
+              <p className="text-sm font-medium text-muted-foreground">Clima</p>
+            </div>
             {weather ? (
               <div className="flex flex-col md:flex-row md:items-center gap-4">
                 <div className="flex items-center gap-3 flex-shrink-0">

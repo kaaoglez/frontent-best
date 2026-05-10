@@ -12,7 +12,7 @@ import {
   ChevronRight, ChevronUp, Home as HomeIcon, Search, Plus, Edit,
   FolderOpen, Folder, MoreVertical, ExternalLink, ArrowUpDown,
   Image as ImageIcon, Film, Play, Copy, Bookmark, Trash2,
-  AlertTriangle, Maximize, Minimize, ArrowLeft, Heart,
+  AlertTriangle, Maximize, Minimize, ArrowLeft, Heart, Subtitles, CaptionsOff, Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogHeader, Di
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
 import FileActionsMenu from '@/components/shared/FileActionsMenu';
+import { useVideoSubtitles } from '@/hooks/useVideoSubtitles';
 
 export default function MoviesSection() {
   const {
@@ -71,6 +72,11 @@ export default function MoviesSection() {
   const [bmNotes, setBmNotes] = useState('');
   const [editingMovieBm, setEditingMovieBm] = useState<Record<string, unknown> | null>(null);
   const [favoriteLoading, setFavoriteLoading] = useState<string | null>(null);
+  const subtitleInputRef = useRef<HTMLInputElement>(null);
+  const {
+    availableSubtitles, activeTrack, subtitlesEnabled, loadingSubtitles,
+    loadSubtitle, loadSubtitleFromFile, toggleSubtitles,
+  } = useVideoSubtitles({ videoPath: currentMovie?.path ?? null, videoRef });
 
   const loadMedia = useCallback(async () => {
     try {
@@ -158,6 +164,8 @@ export default function MoviesSection() {
   const playMovie = (movie: MediaItem) => {
     setCurrentMovie(movie);
   };
+
+
 
   const closeMovie = () => {
     if (videoRef.current) videoRef.current.pause();
@@ -447,6 +455,39 @@ export default function MoviesSection() {
               <Button variant="ghost" size="icon" className="h-8 w-8 text-white hover:text-white/80" title="Abrir en nueva pestaña" onClick={() => openInNewTab(currentMovie)}>
                 <ExternalLink className="h-4 w-4" />
               </Button>
+              {/* Subtitles */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className={`h-8 w-8 ${subtitlesEnabled ? 'text-amber-400 hover:text-amber-300' : 'text-white hover:text-white/80'}`} title="Subtítulos">
+                    {loadingSubtitles ? <Loader2 className="h-4 w-4 animate-spin" /> : subtitlesEnabled ? <Subtitles className="h-4 w-4" /> : <CaptionsOff className="h-4 w-4" />}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-52">
+                  {activeTrack && (
+                    <DropdownMenuItem onClick={toggleSubtitles}>
+                      {subtitlesEnabled ? <CaptionsOff className="h-4 w-4 mr-2" /> : <Subtitles className="h-4 w-4 mr-2" />}
+                      {subtitlesEnabled ? 'Ocultar subtítulos' : 'Mostrar subtítulos'}
+                      <span className="ml-auto text-xs text-muted-foreground">{activeTrack.label}</span>
+                    </DropdownMenuItem>
+                  )}
+                  {availableSubtitles.length > 0 && <>
+                    <DropdownMenuSeparator />
+                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Subtítulos encontrados</div>
+                    {availableSubtitles.map((sub) => (
+                      <DropdownMenuItem key={sub.path} onClick={() => { loadSubtitle(sub); toast.success(`Subtítulo: ${sub.label}`); }}>
+                        <Subtitles className="h-4 w-4 mr-2" />
+                        {sub.label}
+                        {activeTrack?.path === sub.path && <span className="ml-auto text-xs text-amber-400">●</span>}
+                      </DropdownMenuItem>
+                    ))}
+                  </>}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => subtitleInputRef.current?.click()}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Cargar subtítulo (.srt / .vtt)
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Button variant="ghost" size="icon" className="h-8 w-8 text-white hover:text-white/80" onClick={toggleFullscreen}>
                 {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
               </Button>
@@ -506,7 +547,21 @@ export default function MoviesSection() {
         </div>
       )}
 
-      {/* Settings Dialog */}
+      {/* Hidden subtitle file input */}
+      <input
+        ref={subtitleInputRef}
+        type="file"
+        accept=".srt,.vtt"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            loadSubtitleFromFile(file);
+            toast.success(`Subtítulo cargado: ${file.name}`);
+          }
+          e.target.value = '';
+        }}
+      />
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
         <DialogContent>
           <DialogHeader>

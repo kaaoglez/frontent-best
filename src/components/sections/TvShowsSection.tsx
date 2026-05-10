@@ -12,7 +12,7 @@ import {
   ChevronRight, ChevronUp, Home as HomeIcon, Search, Plus, Edit,
   FolderOpen, Folder, MoreVertical, ExternalLink, ArrowUpDown,
   Image as ImageIcon, Film, Play, Copy, Bookmark, Star, Trash2,
-  AlertTriangle, Maximize, Minimize, Monitor, ArrowLeft, Heart,
+  AlertTriangle, Maximize, Minimize, Monitor, ArrowLeft, Heart, Subtitles, CaptionsOff, Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +25,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import FileActionsMenu from '@/components/shared/FileActionsMenu';
+import { useVideoSubtitles } from '@/hooks/useVideoSubtitles';
 
 const tvShowStatuses = [
   { key: 'all', label: 'Todas' },
@@ -112,6 +113,11 @@ export default function TvShowsSection() {
   const [bmNetwork, setBmNetwork] = useState('');
   const [bmGenre, setBmGenre] = useState('');
   const [favoriteLoading, setFavoriteLoading] = useState<string | null>(null);
+  const subtitleInputRef = useRef<HTMLInputElement>(null);
+  const {
+    availableSubtitles, activeTrack, subtitlesEnabled, loadingSubtitles,
+    loadSubtitle, loadSubtitleFromFile, toggleSubtitles,
+  } = useVideoSubtitles({ videoPath: currentTvVideo?.path ?? null, videoRef });
 
   // ── File browser ──
   const loadMedia = useCallback(async () => {
@@ -261,7 +267,9 @@ export default function TvShowsSection() {
   };
 
   // ── Video player ──
-  const playTvVideo = (item: MediaItem) => { setCurrentTvVideo(item); };
+  const playTvVideo = (item: MediaItem) => {
+    setCurrentTvVideo(item);
+  };
 
   const closeTvVideo = () => {
     if (videoRef.current) videoRef.current.pause();
@@ -516,6 +524,39 @@ export default function TvShowsSection() {
               <Button variant="ghost" size="icon" className="h-8 w-8 text-white hover:text-white/80" title="Abrir en nueva pestaña" onClick={() => openInNewTab(currentTvVideo)}>
                 <ExternalLink className="h-4 w-4" />
               </Button>
+              {/* Subtitles */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className={`h-8 w-8 ${subtitlesEnabled ? 'text-amber-400 hover:text-amber-300' : 'text-white hover:text-white/80'}`} title="Subtítulos">
+                    {loadingSubtitles ? <Loader2 className="h-4 w-4 animate-spin" /> : subtitlesEnabled ? <Subtitles className="h-4 w-4" /> : <CaptionsOff className="h-4 w-4" />}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-52">
+                  {activeTrack && (
+                    <DropdownMenuItem onClick={toggleSubtitles}>
+                      {subtitlesEnabled ? <CaptionsOff className="h-4 w-4 mr-2" /> : <Subtitles className="h-4 w-4 mr-2" />}
+                      {subtitlesEnabled ? 'Ocultar subtítulos' : 'Mostrar subtítulos'}
+                      <span className="ml-auto text-xs text-muted-foreground">{activeTrack.label}</span>
+                    </DropdownMenuItem>
+                  )}
+                  {availableSubtitles.length > 0 && <>
+                    <DropdownMenuSeparator />
+                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Subtítulos encontrados</div>
+                    {availableSubtitles.map((sub) => (
+                      <DropdownMenuItem key={sub.path} onClick={() => { loadSubtitle(sub); toast.success(`Subtítulo: ${sub.label}`); }}>
+                        <Subtitles className="h-4 w-4 mr-2" />
+                        {sub.label}
+                        {activeTrack?.path === sub.path && <span className="ml-auto text-xs text-amber-400">●</span>}
+                      </DropdownMenuItem>
+                    ))}
+                  </>}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => subtitleInputRef.current?.click()}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Cargar subtítulo (.srt / .vtt)
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Button variant="ghost" size="icon" className="h-8 w-8 text-white hover:text-white/80" onClick={toggleFullscreen}>
                 {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
               </Button>
@@ -543,6 +584,22 @@ export default function TvShowsSection() {
           )}
         </div>
       )}
+
+      {/* Hidden subtitle file input */}
+      <input
+        ref={subtitleInputRef}
+        type="file"
+        accept=".srt,.vtt"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            loadSubtitleFromFile(file);
+            toast.success(`Subtítulo cargado: ${file.name}`);
+          }
+          e.target.value = '';
+        }}
+      />
 
       {/* Settings Dialog */}
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
