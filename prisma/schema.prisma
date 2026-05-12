@@ -121,8 +121,8 @@ model MusicBookmark {
   album       String?
   coverUrl    String?
   externalUrl String? // External music link (Spotify, YouTube, etc.)
-  notes       String? // For local tracks: "local:{JSON with path,size}"
-  isFavorite  Boolean  @default(true)
+  notes       String?
+  isFavorite  Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -158,4 +158,12 @@ model BookBookmark {
   notes       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model VideoProgress {
+  id        String   @id @default(cuid())
+  videoPath String   @unique
+  position  Float    @default(0) // seconds
+  duration  Float    @default(0) // seconds
+  updatedAt DateTime @updatedAt
 }

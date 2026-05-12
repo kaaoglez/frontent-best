@@ -12,7 +12,7 @@ import {
   ChevronRight, ChevronUp, Home as HomeIcon, Search, Plus, Edit,
   FolderOpen, Folder, MoreVertical, ExternalLink, ArrowUpDown,
   Image as ImageIcon, Film, Play, Copy, Bookmark, Trash2,
-  AlertTriangle, Maximize, Minimize, ArrowLeft, Heart, Subtitles, CaptionsOff, Loader2,
+  AlertTriangle, Maximize, Minimize, ArrowLeft, Heart, Subtitles, CaptionsOff, Loader2, PlayCircle, RotateCcw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +25,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Skeleton } from '@/components/ui/skeleton';
 import FileActionsMenu from '@/components/shared/FileActionsMenu';
 import { useVideoSubtitles } from '@/hooks/useVideoSubtitles';
+import { useVideoProgress } from '@/hooks/useVideoProgress';
 
 export default function MoviesSection() {
   const {
@@ -77,6 +78,10 @@ export default function MoviesSection() {
     availableSubtitles, activeTrack, subtitlesEnabled, loadingSubtitles,
     loadSubtitle, loadSubtitleFromFile, toggleSubtitles,
   } = useVideoSubtitles({ videoPath: currentMovie?.path ?? null, videoRef });
+  const {
+    savedProgress, showResumePrompt, hasResumed,
+    resumeFromSaved, startFromBeginning, formatTime,
+  } = useVideoProgress({ videoPath: currentMovie?.path ?? null, videoRef });
 
   const loadMedia = useCallback(async () => {
     try {
@@ -534,15 +539,44 @@ export default function MoviesSection() {
               </div>
             </div>
           ) : (
-            <video
-              ref={videoRef}
-              className="w-full h-full object-contain"
-              autoPlay
-              controls
-              playsInline
-              onError={() => setVideoError(true)}
-              src={getStreamUrl(currentMovie)}
-            />
+            <div className="relative flex-1">
+              <video
+                ref={videoRef}
+                className="w-full h-full object-contain"
+                autoPlay={showResumePrompt ? false : true}
+                controls
+                playsInline
+                onError={() => setVideoError(true)}
+                src={getStreamUrl(currentMovie)}
+              />
+              {/* Resume prompt overlay */}
+              {showResumePrompt && savedProgress && (
+                <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+                  <div className="flex flex-col items-center gap-4 p-8 max-w-sm text-center">
+                    <div className="p-4 rounded-full bg-white/10">
+                      <PlayCircle className="h-12 w-12 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-1">Continuar reproduciendo?</h3>
+                      <p className="text-sm text-white/60">
+                        Quedaste en <span className="text-amber-400 font-medium">{formatTime(savedProgress.position)}</span>
+                        {savedProgress.duration > 0 && (
+                          <> de {formatTime(savedProgress.duration)}</>
+                        )}
+                      </p>
+                    </div>
+                    <div className="flex gap-3">
+                      <Button onClick={resumeFromSaved} className="bg-rose-600 hover:bg-rose-700 text-white">
+                        <PlayCircle className="h-4 w-4 mr-2" />Continuar
+                      </Button>
+                      <Button variant="outline" className="text-black border-white/30 bg-white hover:bg-gray-200 hover:text-black" onClick={startFromBeginning}>
+                        <RotateCcw className="h-4 w-4 mr-2" />Desde el inicio
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
       )}

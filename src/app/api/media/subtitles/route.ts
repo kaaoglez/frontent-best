@@ -52,42 +52,62 @@ function resolveLanguage(code: string): { language: string; label: string } {
 /**
  * Extract language info from a subtitle filename relative to the video base name.
  *
+ * Shows ALL .srt/.vtt files in the directory, with smart sorting:
+ *   - Exact matches first (VideoName.srt, VideoName.es.srt, etc.)
+ *   - Other subtitle files in the same folder second
+ *
  * Patterns:
- *   VideoName.srt          → und (no language)
- *   VideoName.en.srt       → en, "English"
- *   VideoName.eng.srt      → en, "English"
- *   VideoName.es.srt       → es, "Español"
- *   VideoName.spa.srt      → es, "Español"
- *   VideoName.en.cc.srt    → en, "English"  (multiple suffixes)
+ *   VideoName.srt          → und (no language), exact
+ *   VideoName.en.srt       → en, "English", exact
+ *   VideoName.eng.srt      → en, "English", exact
+ *   OtherFile.es.srt       → es, "Español", not exact
  */
-function extractLanguageInfo(videoBaseName: string, subtitleFileName: string): {
+function extractSubtitleInfo(videoBaseName: string, subtitleFileName: string): {
   language: string;
   label: string;
   exactMatch: boolean;
 } | null {
-  const subName = subtitleFileName;
-  const subExt = path.extname(subName).toLowerCase();
-  const subWithoutExt = subName.slice(0, -subExt.length); // e.g., "MyMovie.en" or "MyMovie"
-
+  const subExt = path.extname(subtitleFileName).toLowerCase();
   if (!SUBTITLE_EXTENSIONS.has(subExt)) return null;
 
-  // Exact match: VideoName.srt (subtitle filename without ext === video base name)
+  const subWithoutExt = subtitleFileName.slice(0, -subExt.length); // e.g., "MyMovie.en" or "MyMovie"
+
+  let isExact = false;
+  let language = 'und';
+  let label = subtitleFileName; // Default: show filename
+
+  // Exact match: VideoName.srt
   if (subWithoutExt === videoBaseName) {
-    return { language: 'und', label: 'Sin idioma', exactMatch: true };
+    isExact = true;
+    label = 'Sin idioma';
+  }
+  // Starts with video base name: VideoName.en.srt
+  else if (subWithoutExt.startsWith(videoBaseName + '.')) {
+    isExact = true;
+    const suffix = subWithoutExt.slice(videoBaseName.length + 1);
+    const langPart = suffix.split('.')[0].toLowerCase();
+    if (langPart) {
+      const resolved = resolveLanguage(langPart);
+      language = resolved.language;
+      label = resolved.label;
+    }
+  }
+  // Not related to video name but still a subtitle — try to extract language anyway
+  else {
+    // Try to find a language code in the filename (last 2-3 chars before extension)
+    const parts = subWithoutExt.split('.');
+    const lastPart = parts[parts.length - 1].toLowerCase();
+    if (lastPart.length <= 3 && lastPart.length >= 2) {
+      const resolved = resolveLanguage(lastPart);
+      // Only use if it resolved to a known language
+      if (LANGUAGE_MAP[resolved.language]) {
+        language = resolved.language;
+        label = resolved.label;
+      }
+    }
   }
 
-  // Check if it starts with the video base name followed by a dot
-  if (!subWithoutExt.startsWith(videoBaseName + '.')) return null;
-
-  // Extract the suffix part between videoBaseName and the extension
-  const suffix = subWithoutExt.slice(videoBaseName.length + 1); // e.g., "en" or "eng" or "en.cc"
-
-  // The first part of the suffix is the language code
-  const langPart = suffix.split('.')[0].toLowerCase();
-  if (!langPart) return null;
-
-  const { language, label } = resolveLanguage(langPart);
-  return { language, label, exactMatch: true };
+  return { language, label, exactMatch: isExact };
 }
 
 export async function GET(request: NextRequest) {
@@ -133,7 +153,7 @@ export async function GET(request: NextRequest) {
       const ext = path.extname(entry).toLowerCase();
       if (!SUBTITLE_EXTENSIONS.has(ext)) continue;
 
-      const info = extractLanguageInfo(videoBaseName, entry);
+      const info = extractSubtitleInfo(videoBaseName, entry);
       if (!info) continue;
 
       const subtitle = {
